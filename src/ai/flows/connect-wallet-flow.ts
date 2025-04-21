@@ -11,14 +11,11 @@ import {z} from 'genkit';
 
 const ConnectWalletOutputSchema = z.object({
   isConnected: z.boolean().describe('Whether the wallet connection was successful.'),
+  address: z.string().optional().describe('The connected wallet address.'),
 });
 export type ConnectWalletOutput = z.infer<typeof ConnectWalletOutputSchema>;
 
-export async function connectWallet(): Promise<ConnectWalletOutput> {
-  return connectWalletFlow();
-}
-
-const connectWalletFlow = ai.defineFlow<undefined, typeof ConnectWalletOutputSchema>(
+export const connectWalletFlow = ai.defineFlow<z.ZodVoid, typeof ConnectWalletOutputSchema>(
   {
     name: 'connectWalletFlow',
     inputSchema: z.void(),
@@ -28,6 +25,6 @@ const connectWalletFlow = ai.defineFlow<undefined, typeof ConnectWalletOutputSch
     // Simulate wallet connection with a 1.5 second delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     // Simulate a successful connection
-    return {isConnected: true};
+    return {isConnected: true, address: '0x123...abc'};
   }
 );

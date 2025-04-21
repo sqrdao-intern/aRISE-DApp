@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Share2, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import {connectWallet} from '@/ai/flows/connect-wallet-flow';
+import { WalletConnect } from "@/components/wallet-connect";
 
 const SHARE_MESSAGE = "Come say aRISE with me!";
 
@@ -40,7 +40,11 @@ export default function Home() {
     }
 
     if (!walletConnected) {
-      await handleConnectWallet();
+      toast({
+        title: "Connect Wallet",
+        description: "Please connect your wallet first.",
+      });
+      return;
     }
 
     try {
@@ -57,31 +61,6 @@ export default function Home() {
       toast({
         variant: "destructive",
         title: "Transaction failed",
-        description: error.message,
-      });
-    }
-  };
-
-  const handleConnectWallet = async () => {
-    try {
-      const result = await connectWallet();
-      if (result.isConnected) {
-        setWalletConnected(true);
-        toast({
-          title: "Wallet connected!",
-          description: "You are ready to say aRISE.",
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Wallet connection failed",
-          description: "Could not connect to wallet.",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Wallet connection error",
         description: error.message,
       });
     }
@@ -124,7 +103,7 @@ export default function Home() {
         <CardContent className="flex flex-col items-center justify-center space-y-4 p-6">
           <h1 className="text-3xl font-semibold tracking-tight">RISE Alerter</h1>
           <Button
-            variant="primary"
+            variant="default"
             size="lg"
             className="w-full"
             disabled={!canTap}
@@ -151,17 +130,7 @@ export default function Home() {
             </div>
           )}
 
-          {!walletConnected && (
-            <Button
-              variant="secondary"
-              size="sm"
-              className="w-full"
-              onClick={handleConnectWallet}
-            >
-              <Wallet className="w-4 h-4 mr-2" />
-              Connect Wallet
-            </Button>
-          )}
+          {!walletConnected && <WalletConnect onConnect={() => setWalletConnected(true)} />}
         </CardContent>
       </Card>
     </div>
