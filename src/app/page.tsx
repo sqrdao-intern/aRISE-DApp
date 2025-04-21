@@ -101,7 +101,7 @@ export default function Home() {
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <Card className="w-full max-w-md bg-background shadow-xl rounded-lg">
         <CardContent className="flex flex-col items-center justify-center space-y-4 p-6">
-          <h1 className="text-3xl font-semibold tracking-tight">RISE Alerter</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">aRISE</h1>
           <Button
             variant="default"
             size="lg"

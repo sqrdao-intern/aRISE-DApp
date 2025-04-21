@@ -40,6 +40,7 @@ export function WalletConnect({ onConnect }: WalletConnectProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [wait24Hours, setWait24Hours] = useState(false);
 
   const addRiseTestnet = async () => {
     if (!window.ethereum) {
@@ -122,6 +123,22 @@ export function WalletConnect({ onConnect }: WalletConnectProps) {
       >
         Add RISE Testnet
       </button>
+      {wait24Hours && (
+        <div className="flex gap-2">
+          <button
+            onClick={() => window.open('https://x.com/share?text=Check%20this%20out!', '_blank')}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Share on X
+          </button>
+          <button
+            onClick={() => window.open('https://t.me/share/url?url=https://example.com&text=Check%20this%20out!', '_blank')}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Share on Telegram
+          </button>
+        </div>
+      )}
     </div>
   );
 } 
