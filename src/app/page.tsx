@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Share2, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {connectWallet} from '@/ai/flows/connect-wallet-flow';
 
 const SHARE_MESSAGE = "Come say aRISE with me!";
 
@@ -39,7 +40,7 @@ export default function Home() {
     }
 
     if (!walletConnected) {
-      await connectWallet();
+      await handleConnectWallet();
     }
 
     try {
@@ -61,19 +62,29 @@ export default function Home() {
     }
   };
 
-  const connectWallet = async () => {
-    // Implement your wallet connection logic here
-    // For this example, we'll just simulate a successful connection
-    return new Promise((resolve) => {
-      setTimeout(() => {
+  const handleConnectWallet = async () => {
+    try {
+      const result = await connectWallet();
+      if (result.isConnected) {
         setWalletConnected(true);
         toast({
           title: "Wallet connected!",
           description: "You are ready to say aRISE.",
         });
-        resolve(true);
-      }, 1500);
-    });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Wallet connection failed",
+          description: "Could not connect to wallet.",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Wallet connection error",
+        description: error.message,
+      });
+    }
   };
 
   const sayArise = async () => {
@@ -145,7 +156,7 @@ export default function Home() {
               variant="secondary"
               size="sm"
               className="w-full"
-              onClick={connectWallet}
+              onClick={handleConnectWallet}
             >
               <Wallet className="w-4 h-4 mr-2" />
               Connect Wallet
