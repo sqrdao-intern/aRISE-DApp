@@ -25,7 +25,6 @@ export function AriseButton() {
   const [totalAriseCount, setTotalAriseCount] = useState<bigint>(BigInt(0));
   const [transactionHash, setTransactionHash] = useState<`0x${string}` | undefined>();
   const [isUpdating, setIsUpdating] = useState(false);
-  const [showShareButtons, setShowShareButtons] = useState(false);
   const lastEventRef = useRef<string>('');
   
   const { isOnCooldown, formattedTime, startCooldown } = useCooldown(address);
@@ -36,8 +35,6 @@ export function AriseButton() {
     setTimeout(() => setIsUpdating(false), 1000); // Animation duration
     // Start cooldown when transaction is confirmed
     startCooldown();
-    // Show share buttons after successful transaction
-    setShowShareButtons(true);
   });
 
   const { writeContract } = useWriteContract({
@@ -130,7 +127,6 @@ export function AriseButton() {
     }
 
     setIsLoading(true);
-    setShowShareButtons(false);
 
     try {
       writeContract({
@@ -193,22 +189,11 @@ export function AriseButton() {
         {isLoading || isTransactionLoading ? 'Processing...' : 'Say aRISE'}
       </Button>
 
-      <AnimatePresence>
-        {showShareButtons && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <SocialShare
-              userAriseCount={userAriseCount}
-              totalAriseCount={totalAriseCount}
-              address={address}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <SocialShare
+        userAriseCount={userAriseCount}
+        totalAriseCount={totalAriseCount}
+        address={address}
+      />
     </div>
   );
 } 
