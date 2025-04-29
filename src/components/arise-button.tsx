@@ -147,39 +147,39 @@ export function AriseButton() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+    <div className="w-full space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <motion.div 
-          className="p-2 sm:p-4 border rounded-lg"
+          className="p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20"
           animate={isUpdating ? { scale: [1, 1.05, 1] } : {}}
           transition={{ duration: 0.5 }}
         >
-          <h3 className="text-sm font-medium">Your aRISE Count</h3>
-          <p className="text-xl sm:text-2xl font-bold">{userAriseCount.toString()}</p>
+          <h3 className="text-lg font-medium text-white/80">Your aRISE Count</h3>
+          <p className="text-4xl font-bold text-white mt-2">{userAriseCount.toString()}</p>
         </motion.div>
         <motion.div 
-          className="p-2 sm:p-4 border rounded-lg"
+          className="p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20"
           animate={isUpdating ? { scale: [1, 1.05, 1] } : {}}
           transition={{ duration: 0.5 }}
         >
-          <h3 className="text-sm font-medium">Total aRISE Count</h3>
-          <p className="text-xl sm:text-2xl font-bold">{totalAriseCount.toString()}</p>
+          <h3 className="text-lg font-medium text-white/80">Total aRISE Count</h3>
+          <p className="text-4xl font-bold text-white mt-2">{totalAriseCount.toString()}</p>
         </motion.div>
       </div>
       
-      {!isOnCooldown && (
+      {isOnCooldown && (
+        <div className="flex items-center justify-center gap-2 p-4 bg-white/95 text-black/80 rounded-2xl border border-white/20 backdrop-blur-sm">
+          <Clock className="h-5 w-5" />
+          <span className="font-medium">Cooldown: {formattedTime}</span>
+        </div>
+      )}
+
+      {!isOnCooldown && status && (
         <TransactionStatus 
           status={status} 
           hash={transactionHash} 
           error={error} 
         />
-      )}
-
-      {isOnCooldown && (
-        <div className="flex items-center justify-center gap-2 p-4 bg-yellow-50 text-yellow-800 rounded-lg border border-yellow-200">
-          <Clock className="h-5 w-5" />
-          <span className="font-medium">Cooldown: {formattedTime}</span>
-        </div>
       )}
 
       <Button
@@ -188,24 +188,37 @@ export function AriseButton() {
         variant="gradient"
         size="lg"
         className={cn(
-          'w-full transition-all duration-200',
-          status === 'success' && 'bg-green-500 hover:bg-green-600 text-white',
-          status === 'error' && 'bg-red-500 hover:bg-red-600 text-white',
-          status === 'pending' && 'bg-yellow-500 hover:bg-yellow-600 text-white',
-          isOnCooldown && 'bg-gray-400 text-gray-900 border border-gray-500 shadow-lg',
-          (!isConnected || !isOnRiseChain) && 'bg-gray-300 text-gray-800 border border-gray-400 shadow',
-          !(isOnCooldown || status === 'success' || status === 'error' || status === 'pending') && 'enabled:animate-pulse-subtle'
+          'w-full h-14 text-lg font-medium rounded-2xl transition-all duration-200',
+          'bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20',
+          status === 'success' && 'bg-green-500/80 hover:bg-green-600/80 border-green-400/30',
+          status === 'error' && 'bg-red-500/80 hover:bg-red-600/80 border-red-400/30',
+          status === 'pending' && 'bg-yellow-500/80 hover:bg-yellow-600/80 border-yellow-400/30',
+          isOnCooldown && 'bg-white/5 text-white/40 border-white/10',
+          (!isConnected || !isOnRiseChain) && 'bg-white/5 text-white/40 border-white/10',
+          !(isOnCooldown || status) && 'enabled:animate-pulse-subtle'
         )}
       >
         {isLoading || isTransactionLoading ? 'Processing...' : 'Say aRISE'}
       </Button>
 
-      <SocialShare
-        userAriseCount={userAriseCount}
-        totalAriseCount={totalAriseCount}
-        address={address}
-        isNewTransaction={isNewTransaction}
-      />
+      <div className="grid grid-cols-2 gap-4">
+        <Button
+          onClick={() => {}}
+          variant="outline"
+          size="lg"
+          className="w-full bg-[#1DA1F2]/90 hover:bg-[#1DA1F2] text-white border-white/20 backdrop-blur-sm rounded-2xl"
+        >
+          Share on X
+        </Button>
+        <Button
+          onClick={() => {}}
+          variant="outline"
+          size="lg"
+          className="w-full bg-[#0088cc]/90 hover:bg-[#0088cc] text-white border-white/20 backdrop-blur-sm rounded-2xl"
+        >
+          Share on Telegram
+        </Button>
+      </div>
     </div>
   );
 } 

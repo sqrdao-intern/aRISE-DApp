@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { MessageSquare, Wallet } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -21,7 +22,7 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
   return (
     <nav
       className={cn(
-        "flex flex-col space-y-1",
+        "flex flex-col space-y-1 w-full",
         className
       )}
       {...props}
@@ -33,22 +34,17 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
             key={item.href}
             href={item.href}
             className={cn(
-              buttonVariants({
-                variant: isActive ? "gradient" : "ghost",
-                size: "default",
-                className: "justify-start w-full",
-              }),
-              "relative transition-all hover:pl-8",
-              isActive && "pl-8"
+              "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors w-full",
+              isActive 
+                ? "bg-black/10 text-black font-medium" 
+                : "text-black/70 hover:bg-black/5 hover:text-black"
             )}
           >
-            {isActive && (
-              <span className="absolute left-2 flex h-6 w-6 items-center justify-center">
-                <span className="h-2 w-2 rounded-full bg-current" />
-              </span>
-            )}
             {item.icon && (
-              <span className="mr-2">{item.icon}</span>
+              <span className={cn(
+                "h-5 w-5",
+                isActive ? "text-black" : "text-black/70"
+              )}>{item.icon}</span>
             )}
             {item.title}
           </Link>

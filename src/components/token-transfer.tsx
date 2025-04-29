@@ -95,7 +95,7 @@ export function TokenTransfer({ onTransferComplete }: TokenTransferProps) {
   };
 
   return (
-    <Card variant="glass" className="p-6 bg-white/10">
+    <Card variant="glass" className="p-6 bg-white/10 w-full">
       <h3 className="text-lg font-semibold text-white mb-4">Send ETH</h3>
       <div className="space-y-4">
         <div>

@@ -57,13 +57,13 @@ export function TransactionStatus({ status, hash, error, receipt, retryCount }: 
   const getStatusColor = () => {
     switch (status) {
       case 'pending':
-        return 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20';
+        return 'bg-white/10 text-white border-white/20';
       case 'success':
-        return 'bg-green-500/10 text-green-700 border-green-500/20';
+        return 'bg-green-500/20 text-white border-green-400/30';
       case 'error':
-        return 'bg-red-500/10 text-red-700 border-red-500/20';
+        return 'bg-red-500/20 text-white border-red-400/30';
       default:
-        return 'bg-gray-500/10 text-gray-700 border-gray-500/20';
+        return 'bg-white/10 text-white/90 border-white/20';
     }
   };
 
@@ -107,24 +107,24 @@ export function TransactionStatus({ status, hash, error, receipt, retryCount }: 
     <div className="space-y-2">
       <motion.div
         className={cn(
-          'rounded-xl border backdrop-blur-sm transition-colors duration-200',
+          'rounded-2xl border backdrop-blur-sm transition-colors duration-200',
           getStatusColor()
         )}
       >
         <button
           onClick={handleExpand}
-          className="w-full flex items-center justify-between p-4 hover:bg-black/5 transition-colors duration-200"
+          className="w-full flex items-center justify-between p-4 hover:bg-white/5 transition-colors duration-200"
         >
           <div className="flex items-center gap-3">
             {getStatusIcon()}
-            <span className="font-medium">{getStatusText()}</span>
+            <span className="font-medium text-lg">{getStatusText()}</span>
           </div>
           {hash && (
             <div className="flex items-center gap-2">
               {isExpanded ? (
-                <ChevronUp className="h-5 w-5 opacity-60" />
+                <ChevronUp className="h-5 w-5 text-white/60" />
               ) : (
-                <ChevronDown className="h-5 w-5 opacity-60" />
+                <ChevronDown className="h-5 w-5 text-white/60" />
               )}
             </div>
           )}
@@ -134,9 +134,9 @@ export function TransactionStatus({ status, hash, error, receipt, retryCount }: 
           <div className="px-4 pb-4">
             <Progress 
               value={getProgressPercentage()} 
-              className="h-2 bg-yellow-200/20"
+              className="h-2 bg-white/10"
             />
-            <p className="text-xs mt-1 text-center opacity-60">
+            <p className="text-sm mt-2 text-center text-white/60">
               {REQUIRED_CONFIRMATIONS - confirmations} more confirmations needed
             </p>
           </div>
@@ -151,14 +151,14 @@ export function TransactionStatus({ status, hash, error, receipt, retryCount }: 
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="px-4 pb-4 space-y-3 border-t border-current/10">
+              <div className="px-4 pb-4 space-y-3 border-t border-white/10">
                 <div className="flex items-center justify-between gap-2 text-sm">
-                  <span className="opacity-80">Transaction Hash:</span>
+                  <span className="text-white/60">Transaction Hash:</span>
                   <Link
                     href={`https://explorer.testnet.riselabs.xyz/tx/${hash}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 hover:opacity-80 transition-opacity"
+                    className="flex items-center gap-1 text-white hover:text-white/80 transition-colors"
                   >
                     {hash.slice(0, 10)}...{hash.slice(-8)}
                     <ExternalLink className="h-4 w-4" />
@@ -168,38 +168,38 @@ export function TransactionStatus({ status, hash, error, receipt, retryCount }: 
                 {transactionDetails && (
                   <>
                     <div className="flex items-center justify-between gap-2 text-sm">
-                      <span className="opacity-80">Block Number:</span>
-                      <span>{transactionDetails.blockNumber?.toString()}</span>
+                      <span className="text-white/60">Block Number:</span>
+                      <span className="text-white">{transactionDetails.blockNumber?.toString()}</span>
                     </div>
                     <div className="flex items-center justify-between gap-2 text-sm">
-                      <span className="opacity-80">Confirmations:</span>
-                      <span>{confirmations} blocks</span>
+                      <span className="text-white/60">Confirmations:</span>
+                      <span className="text-white">{confirmations} blocks</span>
                     </div>
                     <div className="flex items-center justify-between gap-2 text-sm">
-                      <span className="opacity-80">Gas Used:</span>
-                      <span>{transactionDetails.gasUsed?.toString()} units</span>
+                      <span className="text-white/60">Gas Used:</span>
+                      <span className="text-white">{transactionDetails.gasUsed?.toString()} units</span>
                     </div>
                     {transactionDetails.value && (
                       <div className="flex items-center justify-between gap-2 text-sm">
-                        <span className="opacity-80">Value:</span>
-                        <span>{formatEther(transactionDetails.value)} ETH</span>
+                        <span className="text-white/60">Value:</span>
+                        <span className="text-white">{formatEther(transactionDetails.value)} ETH</span>
                       </div>
                     )}
                     <div className="flex items-center justify-between gap-2 text-sm">
-                      <span className="opacity-80">Status:</span>
-                      <span>{transactionDetails.status === 1 ? 'Success' : 'Failed'}</span>
+                      <span className="text-white/60">Status:</span>
+                      <span className="text-white">{transactionDetails.status === 1 ? 'Success' : 'Failed'}</span>
                     </div>
                   </>
                 )}
 
                 {error && (
-                  <div className="mt-2 text-sm text-red-500 bg-red-500/5 p-2 rounded-lg">
+                  <div className="mt-2 text-sm text-red-200 bg-red-500/20 p-3 rounded-xl border border-red-400/30">
                     {error}
                   </div>
                 )}
 
                 {status === 'pending' && (
-                  <div className="flex items-center justify-center gap-2 text-sm mt-2">
+                  <div className="flex items-center justify-center gap-2 text-sm mt-2 text-white/80">
                     <RefreshCw className="h-4 w-4 animate-spin" />
                     <span>
                       {confirmations > 0
