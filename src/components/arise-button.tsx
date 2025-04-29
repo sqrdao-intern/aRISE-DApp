@@ -148,22 +148,22 @@ export function AriseButton() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <motion.div 
-          className="p-4 border rounded-lg"
+          className="p-2 sm:p-4 border rounded-lg"
           animate={isUpdating ? { scale: [1, 1.05, 1] } : {}}
           transition={{ duration: 0.5 }}
         >
           <h3 className="text-sm font-medium">Your aRISE Count</h3>
-          <p className="text-2xl font-bold">{userAriseCount.toString()}</p>
+          <p className="text-xl sm:text-2xl font-bold">{userAriseCount.toString()}</p>
         </motion.div>
         <motion.div 
-          className="p-4 border rounded-lg"
+          className="p-2 sm:p-4 border rounded-lg"
           animate={isUpdating ? { scale: [1, 1.05, 1] } : {}}
           transition={{ duration: 0.5 }}
         >
           <h3 className="text-sm font-medium">Total aRISE Count</h3>
-          <p className="text-2xl font-bold">{totalAriseCount.toString()}</p>
+          <p className="text-xl sm:text-2xl font-bold">{totalAriseCount.toString()}</p>
         </motion.div>
       </div>
       
