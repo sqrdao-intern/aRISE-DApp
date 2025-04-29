@@ -1,15 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useWaitForTransactionReceipt, usePublicClient } from 'wagmi';
 import { customToast } from '@/components/ui/custom-toast';
 
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 1000; // 1 second
+const NOTIFICATION_COOLDOWN = 10000; // 10 seconds
 
-export function useTransactionStatus(hash?: `0x${string}`) {
+export function useTransactionStatus(hash?: `0x${string}`, onSuccess?: () => void) {
   const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
   const [lastChecked, setLastChecked] = useState<number>(0);
   const [retryCount, setRetryCount] = useState<number>(0);
+  const lastNotificationTime = useRef<number>(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const publicClient = usePublicClient();
 
   const { data: receipt, isError, isLoading } = useWaitForTransactionReceipt({
@@ -23,9 +26,39 @@ export function useTransactionStatus(hash?: `0x${string}`) {
     return INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
   };
 
+  // Centralized notification function
+  const showNotification = (type: 'success' | 'error' | 'warning', title: string, description?: string) => {
+    const now = Date.now();
+    if (now - lastNotificationTime.current < NOTIFICATION_COOLDOWN) {
+      console.log('Skipping notification due to cooldown');
+      return;
+    }
+    lastNotificationTime.current = now;
+    
+    switch (type) {
+      case 'success':
+        customToast.success(title, description);
+        break;
+      case 'error':
+        customToast.error(title, description);
+        break;
+      case 'warning':
+        customToast.warning(title, description);
+        break;
+    }
+  };
+
+  // Cleanup function
+  const cleanup = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
   // Fallback mechanism to check transaction status
   const checkTransactionStatus = async () => {
-    if (!hash || !publicClient) return;
+    if (!hash || !publicClient || status === 'success') return;
 
     try {
       const currentTime = Date.now();
@@ -41,7 +74,9 @@ export function useTransactionStatus(hash?: `0x${string}`) {
       if (receipt) {
         setStatus('success');
         setRetryCount(0);
-        customToast.success('Transaction confirmed!', `Block: ${receipt.blockNumber}`);
+        cleanup(); // Stop the fallback mechanism
+        showNotification('success', 'Transaction confirmed!', `Block: ${receipt.blockNumber}`);
+        onSuccess?.();
       }
     } catch (error) {
       console.error('Error checking transaction status:', error);
@@ -57,10 +92,8 @@ export function useTransactionStatus(hash?: `0x${string}`) {
       } else {
         setStatus('error');
         setError('Failed to confirm transaction status. Please check the explorer manually.');
-        customToast.error(
-          'Connection Error',
-          'Unable to confirm transaction status. Please check the explorer manually.'
-        );
+        cleanup(); // Stop the fallback mechanism
+        showNotification('error', 'Connection Error', 'Unable to confirm transaction status. Please check the explorer manually.');
       }
     }
   };
@@ -73,8 +106,9 @@ export function useTransactionStatus(hash?: `0x${string}`) {
       console.log('Transaction hash received:', hash);
       
       // Start fallback polling
-      const interval = setInterval(checkTransactionStatus, 5000);
-      return () => clearInterval(interval);
+      cleanup(); // Clear any existing interval
+      intervalRef.current = setInterval(checkTransactionStatus, 5000);
+      return cleanup;
     }
   }, [hash]);
 
@@ -83,7 +117,9 @@ export function useTransactionStatus(hash?: `0x${string}`) {
       console.log('Transaction receipt received:', receipt);
       setStatus('success');
       setRetryCount(0);
-      customToast.success('Transaction confirmed!', `Block: ${receipt.blockNumber}`);
+      cleanup(); // Stop the fallback mechanism
+      showNotification('success', 'Transaction confirmed!', `Block: ${receipt.blockNumber}`);
+      onSuccess?.();
     }
   }, [receipt]);
 
@@ -92,9 +128,15 @@ export function useTransactionStatus(hash?: `0x${string}`) {
       console.error('Transaction error:', isError);
       setStatus('error');
       setError('Transaction failed');
-      customToast.error('Transaction failed', 'Please try again later');
+      cleanup(); // Stop the fallback mechanism
+      showNotification('error', 'Transaction failed', 'Please try again later');
     }
   }, [isError]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return cleanup;
+  }, []);
 
   return {
     status,

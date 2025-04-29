@@ -6,7 +6,7 @@ export function useRiseChain() {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
 
-  const isOnRiseChain = chainId === 420; // RISE Chain testnet chain ID
+  const isOnRiseChain = chainId === 11155931; // RISE Chain testnet chain ID
 
   return {
     address,

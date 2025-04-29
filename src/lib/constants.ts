@@ -40,4 +40,17 @@ export const ARISE_CONTRACT_ABI = [
     stateMutability: 'view',
     type: 'function',
   },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+    ],
+    name: 'AriseSaid',
+    type: 'event',
+  },
 ] as const; 
