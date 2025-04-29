@@ -185,12 +185,16 @@ export function AriseButton() {
       <Button
         onClick={handleSayArise}
         disabled={!isConnected || !isOnRiseChain || isLoading || isTransactionLoading || isOnCooldown}
+        variant="gradient"
+        size="lg"
         className={cn(
-          'w-full',
-          status === 'success' && 'bg-green-500 hover:bg-green-600',
-          status === 'error' && 'bg-red-500 hover:bg-red-600',
-          status === 'pending' && 'bg-yellow-500 hover:bg-yellow-600',
-          isOnCooldown && 'bg-gray-500 hover:bg-gray-600'
+          'w-full transition-all duration-200',
+          status === 'success' && 'bg-green-500 hover:bg-green-600 text-white',
+          status === 'error' && 'bg-red-500 hover:bg-red-600 text-white',
+          status === 'pending' && 'bg-yellow-500 hover:bg-yellow-600 text-white',
+          isOnCooldown && 'bg-gray-400 text-gray-900 border border-gray-500 shadow-lg',
+          (!isConnected || !isOnRiseChain) && 'bg-gray-300 text-gray-800 border border-gray-400 shadow',
+          !(isOnCooldown || status === 'success' || status === 'error' || status === 'pending') && 'enabled:animate-pulse-subtle'
         )}
       >
         {isLoading || isTransactionLoading ? 'Processing...' : 'Say aRISE'}
