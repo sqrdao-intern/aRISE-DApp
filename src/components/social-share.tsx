@@ -18,7 +18,7 @@ export function SocialShare({ userAriseCount, totalAriseCount, address, isNewTra
   const displayUserCount = isNewTransaction ? BigInt(userAriseCount) + BigInt(1) : userAriseCount;
   const displayTotalCount = isNewTransaction ? BigInt(totalAriseCount) + BigInt(1) : totalAriseCount;
 
-  const shareText = `I just said aRISE ${displayUserCount.toString()} time${displayUserCount > 1 ? 's' : ''}! Join me in this journey to spread aRISEs to the world! 🚀`;
+  const shareText = `I just said aRISE ${displayUserCount.toString()} time${displayUserCount > 1 ? 's' : ''} on the @rise_chain Testnet! Join me in this journey to spread aRISEs to the world! 🚀`;
 
   const handleTwitterShare = () => {
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
