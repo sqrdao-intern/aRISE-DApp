@@ -13,7 +13,14 @@ export function useTransactionStatus(hash?: `0x${string}`, onSuccess?: () => voi
   const [retryCount, setRetryCount] = useState<number>(0);
   const lastNotificationTime = useRef<number>(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const onSuccessRef = useRef(onSuccess);
+  const hasCalledSuccessRef = useRef(false);
   const publicClient = usePublicClient();
+
+  // Update success callback ref when it changes
+  useEffect(() => {
+    onSuccessRef.current = onSuccess;
+  }, [onSuccess]);
 
   const { data: receipt, isError, isLoading } = useWaitForTransactionReceipt({
     hash,
@@ -56,9 +63,24 @@ export function useTransactionStatus(hash?: `0x${string}`, onSuccess?: () => voi
     }
   };
 
+  // Reset state when hash changes
+  useEffect(() => {
+    if (hash) {
+      setStatus('pending');
+      setError(null);
+      setRetryCount(0);
+      hasCalledSuccessRef.current = false;
+      console.log('Transaction hash received:', hash);
+    }
+    return () => {
+      cleanup();
+      hasCalledSuccessRef.current = false;
+    };
+  }, [hash]);
+
   // Fallback mechanism to check transaction status
   const checkTransactionStatus = async () => {
-    if (!hash || !publicClient || status === 'success') return;
+    if (!hash || !publicClient || status === 'success' || hasCalledSuccessRef.current) return;
 
     try {
       const currentTime = Date.now();
@@ -76,7 +98,10 @@ export function useTransactionStatus(hash?: `0x${string}`, onSuccess?: () => voi
         setRetryCount(0);
         cleanup(); // Stop the fallback mechanism
         showNotification('success', 'Transaction confirmed!', `Block: ${receipt.blockNumber}`);
-        onSuccess?.();
+        if (!hasCalledSuccessRef.current && onSuccessRef.current) {
+          hasCalledSuccessRef.current = true;
+          onSuccessRef.current();
+        }
       }
     } catch (error) {
       console.error('Error checking transaction status:', error);
@@ -99,12 +124,7 @@ export function useTransactionStatus(hash?: `0x${string}`, onSuccess?: () => voi
   };
 
   useEffect(() => {
-    if (hash) {
-      setStatus('pending');
-      setError(null);
-      setRetryCount(0);
-      console.log('Transaction hash received:', hash);
-      
+    if (hash && !hasCalledSuccessRef.current) {
       // Start fallback polling
       cleanup(); // Clear any existing interval
       intervalRef.current = setInterval(checkTransactionStatus, 5000);
@@ -113,13 +133,16 @@ export function useTransactionStatus(hash?: `0x${string}`, onSuccess?: () => voi
   }, [hash]);
 
   useEffect(() => {
-    if (receipt) {
+    if (receipt && !hasCalledSuccessRef.current) {
       console.log('Transaction receipt received:', receipt);
       setStatus('success');
       setRetryCount(0);
       cleanup(); // Stop the fallback mechanism
       showNotification('success', 'Transaction confirmed!', `Block: ${receipt.blockNumber}`);
-      onSuccess?.();
+      if (onSuccessRef.current) {
+        hasCalledSuccessRef.current = true;
+        onSuccessRef.current();
+      }
     }
   }, [receipt]);
 
@@ -135,7 +158,10 @@ export function useTransactionStatus(hash?: `0x${string}`, onSuccess?: () => voi
 
   // Cleanup on unmount
   useEffect(() => {
-    return cleanup;
+    return () => {
+      cleanup();
+      hasCalledSuccessRef.current = false;
+    };
   }, []);
 
   return {

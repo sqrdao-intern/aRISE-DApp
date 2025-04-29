@@ -9,17 +9,49 @@ import { Loader2, Send } from 'lucide-react';
 import { customToast } from '@/components/ui/custom-toast';
 import { useAccount, useWalletClient } from 'wagmi';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface TokenTransferProps {
-  onTransferComplete?: () => void;
+  onTransferComplete?: (hash: `0x${string}`) => void;
 }
 
 export function TokenTransfer({ onTransferComplete }: TokenTransferProps) {
   const { address, isConnected } = useAccount();
-  const { data: walletClient } = useWalletClient();
+  const { data: walletClient, isLoading: isWalletLoading } = useWalletClient();
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  if (!isConnected) {
+    return (
+      <Card variant="glass" className="p-6">
+        <div className="flex flex-col items-center justify-center text-center space-y-2">
+          <div className="inline-flex px-4 py-1 rounded-full border border-white/20 text-white/60">
+            Not Connected
+          </div>
+          <p className="text-sm text-white/60">Connect your wallet to send ETH</p>
+        </div>
+      </Card>
+    );
+  }
+
+  if (isWalletLoading) {
+    return (
+      <Card variant="glass" className="p-6">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Skeleton variant="glass" className="h-5 w-32" />
+            <Skeleton variant="glass" className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton variant="glass" className="h-5 w-24" />
+            <Skeleton variant="glass" className="h-10 w-full" />
+          </div>
+          <Skeleton variant="glass" className="h-11 w-full" />
+        </div>
+      </Card>
+    );
+  }
 
   const handleTransfer = async () => {
     if (!walletClient || !address) {
@@ -51,7 +83,7 @@ export function TokenTransfer({ onTransferComplete }: TokenTransferProps) {
       });
 
       customToast.info('Transaction Sent', 'Waiting for confirmation...');
-      onTransferComplete?.();
+      onTransferComplete?.(hash);
       setRecipient('');
       setAmount('');
     } catch (error) {
@@ -61,19 +93,6 @@ export function TokenTransfer({ onTransferComplete }: TokenTransferProps) {
       setIsLoading(false);
     }
   };
-
-  if (!isConnected) {
-    return (
-      <Card variant="glass" className="p-6">
-        <div className="flex flex-col items-center justify-center text-center space-y-2">
-          <div className="inline-flex px-4 py-1 rounded-full border border-white/20 text-white/60">
-            Not Connected
-          </div>
-          <p className="text-sm text-white/60">Connect your wallet to send ETH</p>
-        </div>
-      </Card>
-    );
-  }
 
   return (
     <Card variant="glass" className="p-6 bg-white/10">
@@ -128,4 +147,4 @@ export function TokenTransfer({ onTransferComplete }: TokenTransferProps) {
       </div>
     </Card>
   );
-} 
+}
