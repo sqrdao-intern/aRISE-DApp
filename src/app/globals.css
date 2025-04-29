@@ -8,7 +8,7 @@ body {
 
 @layer base {
   :root {
-    --background: 265 75% 65%; /* Vibrant RISE purple background */
+    --background: 265 75% 65%; /* Light purple background */
     --foreground: 0 0% 100%; /* Pure white text */
     --card: 0 0% 100%; /* White cards */
     --card-foreground: 225 25% 20%; /* Dark text on cards */
@@ -31,7 +31,7 @@ body {
     
     /* Background gradient variables */
     --gradient-start: 265 75% 65%;
-    --gradient-end: 265 75% 65%; /* Single color instead of gradient to match screenshot */
+    --gradient-end: 265 75% 65%;
     
     /* Button gradient variables - bright blue to violet for contrast */
     --button-gradient-start: 230 100% 65%;  /* Bright blue */
@@ -51,7 +51,7 @@ body {
 
   /* Since RISE portal uses light theme, we'll keep the dark theme similar to light for consistency */
   .dark {
-    --background: 265 75% 65%;
+    --background: 265 75% 65%; /* Light purple background */
     --foreground: 0 0% 100%;
     --card: 0 0% 100%;
     --card-foreground: 225 25% 20%;
@@ -97,9 +97,8 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    background: hsl(var(--background)); /* Removed gradient to match screenshot */
-    min-height: 100vh;
+    @apply bg-background text-foreground min-h-screen;
+    background: hsl(var(--background)); /* Ensure consistent color application */
   }
 }
 

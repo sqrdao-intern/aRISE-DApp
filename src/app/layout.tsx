@@ -23,7 +23,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.className}>
-      <body className="antialiased">
+      <body 
+        className="antialiased min-h-screen"
+        style={{ background: 'hsl(265, 75%, 65%)' }}
+      >
         <Providers>
           <MainLayout>
             {children}

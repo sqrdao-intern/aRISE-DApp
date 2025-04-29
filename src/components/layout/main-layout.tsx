@@ -24,12 +24,16 @@ export function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname()
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-br from-purple-500 to-purple-600">
+    <div className="flex min-h-screen flex-col">
       <div className="flex flex-1">
         {/* Sidebar */}
-        <div className="w-64 shrink-0 min-h-screen fixed left-0 top-0 p-4">
-          <SidebarProvider defaultOpen>
-            <Sidebar variant="inset" collapsible="none" className="min-h-[calc(100vh-2rem)] bg-white rounded-2xl shadow-lg">
+        <SidebarProvider defaultOpen>
+          <div className="w-64 shrink-0 min-h-screen fixed left-0 top-0 p-4 md:block hidden">
+            <Sidebar 
+              variant="floating" 
+              collapsible="offcanvas" 
+              className="min-h-[calc(100vh-2rem)] rounded-2xl shadow-lg [&_[data-sidebar=sidebar]]:rounded-2xl [&_[data-sidebar=sidebar]]:shadow-lg [&>div>div]:!p-0"
+            >
               <SidebarContent className="flex flex-col h-full pt-6">
                 {/* Sidebar Header */}
                 <div className="px-6">
@@ -52,32 +56,30 @@ export function MainLayout({ children }: MainLayoutProps) {
                 <div className="flex-1 w-full">
                   <SidebarNavigation />
                 </div>
-
-                {/* Bottom Icon */}
-                {/* <div className="p-4">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-black/5">
-                    
-                  </div>
-                </div> */}
               </SidebarContent>
             </Sidebar>
-          </SidebarProvider>
-        </div>
+          </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 ml-64">
-          {/* Header */}
-          <header className="sticky top-0 z-30 flex h-16 items-center justify-end bg-primary/20 px-6 backdrop-blur-sm">
-            <div className="flex items-center gap-4">
-              <WalletConnect />
-            </div>
-          </header>
+          {/* Main Content Area */}
+          <div className="flex-1 min-h-screen md:pl-64">
+            {/* Header */}
+            <header className="sticky top-0 z-30 flex h-auto min-h-16 items-center justify-between px-4 md:px-6 py-2 backdrop-blur-sm">
+              <div className="md:hidden">
+                <SidebarTrigger className="h-9 w-9 text-white hover:bg-white/10" />
+              </div>
+              <div className="flex items-center md:ml-auto">
+                <WalletConnect />
+              </div>
+            </header>
 
-          {/* Main Content */}
-          <main className="min-h-[calc(100vh-4rem)] p-6">
-            {children}
-          </main>
-        </div>
+            {/* Main Content */}
+            <main className="p-4">
+              <div className="min-h-[calc(100vh-6rem)] rounded-2xl shadow-lg p-6">
+                {children}
+              </div>
+            </main>
+          </div>
+        </SidebarProvider>
       </div>
     </div>
   )

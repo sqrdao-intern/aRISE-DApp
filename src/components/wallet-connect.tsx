@@ -8,6 +8,12 @@ import { Loader2, Power, Plus, ExternalLink } from 'lucide-react';
 import { customToast } from '@/components/ui/custom-toast';
 import { useAccount, useConnect, useDisconnect, useChainId, useSwitchChain } from 'wagmi';
 import { RISE_CHAIN_TESTNET } from '@/lib/networks';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface AddEthereumChainParameter {
   chainId: string;
@@ -77,12 +83,34 @@ export function WalletConnect() {
           networkName={RISE_CHAIN_TESTNET.name}
           className="mr-2"
         />
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="gradient"
+                size="icon"
+                onClick={handleConnect}
+                disabled={isPending || isAddingNetwork}
+                className="md:hidden w-8 h-8 p-0"
+              >
+                {isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Power className="h-4 w-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Connect Wallet</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <Button
           variant="gradient"
           size="default"
           onClick={handleConnect}
           disabled={isPending || isAddingNetwork}
-          className="gap-2"
+          className="hidden md:flex gap-2"
         >
           {isPending ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -91,12 +119,35 @@ export function WalletConnect() {
           )}
           Connect Wallet
         </Button>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={addRiseTestnet}
+                disabled={isPending || isAddingNetwork}
+                className="md:hidden w-8 h-8 p-0 hover:bg-white/10 hover:text-white transition-colors"
+              >
+                {isAddingNetwork ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Plus className="h-4 w-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Add RISE Testnet</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <Button
           variant="outline"
           size="default"
           onClick={addRiseTestnet}
           disabled={isPending || isAddingNetwork}
-          className="hover:bg-white/10 hover:text-white transition-colors gap-2"
+          className="hidden md:flex hover:bg-white/10 hover:text-white transition-colors gap-2"
         >
           {isAddingNetwork ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -117,20 +168,55 @@ export function WalletConnect() {
         networkName={RISE_CHAIN_TESTNET.name}
         className="mr-2"
       />
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="md:hidden w-8 h-8 p-0 font-mono bg-white/5 border-white/20 text-white hover:bg-white/10 hover:text-white transition-colors"
+              onClick={() => window.open(RISE_CHAIN_TESTNET.blockExplorers.default.url + '/address/' + address, '_blank')}
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>View on Explorer</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <Button
         variant="outline"
         size="default"
-        className="font-mono gap-2 bg-white/5 border-white/20 text-white hover:bg-white/10 hover:text-white transition-colors"
+        className="hidden md:flex font-mono gap-2 bg-white/5 border-white/20 text-white hover:bg-white/10 hover:text-white transition-colors"
         onClick={() => window.open(RISE_CHAIN_TESTNET.blockExplorers.default.url + '/address/' + address, '_blank')}
       >
         {formatAddress(address!)}
         <ExternalLink className="h-4 w-4" />
       </Button>
+
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => disconnect()}
+              className="md:hidden w-8 h-8 p-0 bg-white/5 border-white/20 text-white hover:bg-white/10 hover:text-white transition-colors"
+            >
+              <Power className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Disconnect</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <Button
         variant="outline"
         size="default"
         onClick={() => disconnect()}
-        className="gap-2 bg-white/5 border-white/20 text-white hover:bg-white/10 hover:text-white transition-colors"
+        className="hidden md:flex gap-2 bg-white/5 border-white/20 text-white hover:bg-white/10 hover:text-white transition-colors"
       >
         <Power className="h-4 w-4" />
         Disconnect
