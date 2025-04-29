@@ -9,6 +9,9 @@ export default {
   ],
   theme: {
   	extend: {
+  		fontFamily: {
+  			sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+  		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -66,6 +69,10 @@ export default {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
+  		boxShadow: {
+  			'rise': '0 4px 14px 0 rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+  			'rise-lg': '0 10px 25px -3px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.15), 0 0 40px -10px rgba(255, 255, 255, 0.2)',
+  		},
   		keyframes: {
   			'accordion-down': {
   				from: {
@@ -82,11 +89,34 @@ export default {
   				to: {
   					height: '0'
   				}
+  			},
+  			'gradient-shift': {
+  				'0%, 100%': {
+  					'background-position': '0% 50%'
+  				},
+  				'50%': {
+  					'background-position': '100% 50%'
+  				}
+  			},
+  			'pulse-subtle': {
+  				'0%, 100%': {
+  					opacity: '1',
+  					transform: 'scale(1)'
+  				},
+  				'50%': {
+  					opacity: '0.95',
+  					transform: 'scale(1.01)'
+  				}
   			}
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+  			'gradient-shift': 'gradient-shift 3s ease infinite',
+  			'pulse-subtle': 'pulse-subtle 2s ease-in-out infinite'
+  		},
+  		backgroundSize: {
+  			'rise-gradient-size': '200% 200%'
   		}
   	}
   },

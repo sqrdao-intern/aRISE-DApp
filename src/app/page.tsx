@@ -4,21 +4,14 @@ import { AriseButton } from '@/components/arise-button';
 import { useRiseChain } from '@/hooks/useRiseChain';
 
 export default function Home() {
-  const { isConnected, address } = useRiseChain();
+  const { isConnected } = useRiseChain();
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-8 text-center">Say aRISE!</h1>
-        <div className="mb-4">
-          {isConnected ? (
-            <p className="text-center">Connected: {address}</p>
-          ) : (
-            <p className="text-center">Please connect your wallet</p>
-          )}
-        </div>
+    <div className="flex flex-col items-center justify-start w-full max-w-4xl mx-auto">
+      <h1 className="text-4xl sm:text-5xl font-bold mb-12 text-center text-white">Say aRISE!</h1>
+      <div className="w-full">
         <AriseButton />
       </div>
-    </main>
+    </div>
   );
 }

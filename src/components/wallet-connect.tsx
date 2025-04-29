@@ -1,144 +1,226 @@
 'use client';
 
 import { useState } from 'react';
-import { ethers } from 'ethers';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { NetworkBadge } from '@/components/ui/network-badge';
+import { Loader2, Power, Plus, ExternalLink } from 'lucide-react';
+import { customToast } from '@/components/ui/custom-toast';
+import { useAccount, useConnect, useDisconnect, useChainId, useSwitchChain } from 'wagmi';
+import { RISE_CHAIN_TESTNET } from '@/lib/networks';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
-// RISE Testnet configuration
-const RISE_TESTNET = {
-  id: 11155931,
-  name: 'RISE Testnet',
-  network: 'rise-testnet',
+interface AddEthereumChainParameter {
+  chainId: string;
+  chainName: string;
   nativeCurrency: {
-    decimals: 18,
-    name: 'Ethereum',
-    symbol: 'ETH',
-  },
-  rpcUrls: {
-    public: { http: ['https://testnet.riselabs.xyz'] },
-    default: { http: ['https://testnet.riselabs.xyz'] },
-  },
-  blockExplorers: {
-    default: { name: 'Explorer', url: 'https://explorer.testnet.riselabs.xyz' },
-  },
-  testnet: true
-};
-
-// Type definition for window.ethereum
-declare global {
-  interface Window {
-    ethereum?: {
-      request: (args: { method: string }) => Promise<any>;
-    };
-  }
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
+  rpcUrls: string[];
+  blockExplorerUrls?: string[];
 }
 
-interface WalletConnectProps {
-  onConnect: () => void;
-}
+export function WalletConnect() {
+  const { address, isConnected } = useAccount();
+  const chainId = useChainId();
+  const { connect, connectors, isPending } = useConnect();
+  const { disconnect } = useDisconnect();
+  const { switchChain } = useSwitchChain();
+  const [isAddingNetwork, setIsAddingNetwork] = useState(false);
 
-export function WalletConnect({ onConnect }: WalletConnectProps) {
-  const [isConnected, setIsConnected] = useState(false);
-  const [address, setAddress] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [wait24Hours, setWait24Hours] = useState(false);
+  const isCorrectNetwork = chainId === RISE_CHAIN_TESTNET.id;
 
   const addRiseTestnet = async () => {
+    setIsAddingNetwork(true);
     if (!window.ethereum) {
-      setError('Please install MetaMask or another Web3 wallet');
+      customToast.error('Wallet Not Found', 'Please install MetaMask or another Web3 wallet');
+      setIsAddingNetwork(false);
       return;
     }
 
     try {
-      await (window.ethereum as any).request({
-        method: 'wallet_addEthereumChain',
-        params: [{
-          chainId: `0x${RISE_TESTNET.id.toString(16)}`,
-          chainName: RISE_TESTNET.name,
-          nativeCurrency: RISE_TESTNET.nativeCurrency,
-          rpcUrls: RISE_TESTNET.rpcUrls.default.http,
-          blockExplorerUrls: [RISE_TESTNET.blockExplorers.default.url]
-        }]
-      });
+      await switchChain({ chainId: RISE_CHAIN_TESTNET.id });
+      customToast.success('Network Added', 'RISE Testnet has been added to your wallet');
     } catch (error) {
       console.error('Error adding RISE Testnet:', error);
-      setError('Failed to add RISE Testnet');
+      customToast.error('Network Error', 'Failed to add RISE Testnet');
+    } finally {
+      setIsAddingNetwork(false);
     }
   };
 
-  const connectWallet = async () => {
-    if (!window.ethereum) {
-      setError('Please install MetaMask or another Web3 wallet');
-      return;
-    }
-
+  const handleConnect = async () => {
     try {
-      // Request account access
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-      // Create a provider using ethers v6 syntax
-      const provider = new ethers.BrowserProvider(window.ethereum);
-
-      // Get the signer
-      const signer = await provider.getSigner();
-
-      // Get the address
-      const address = await signer.getAddress();
-      setAddress(address);
-      setIsConnected(true);
-      setError(null);
-      onConnect();
+      const connector = connectors[0]; // Usually MetaMask
+      if (connector) {
+        await connect({ connector });
+      } else {
+        customToast.error('No Wallet Found', 'Please install MetaMask or another Web3 wallet');
+      }
     } catch (error) {
-      console.error('Wallet connection error:', error);
-      setError('Failed to connect wallet');
+      console.error('Connection error:', error);
+      customToast.error('Connection Failed', 'Failed to connect wallet');
     }
   };
+
+  const formatAddress = (addr: string) => {
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  };
+
+  if (!isConnected) {
+    return (
+      <div className="flex items-center gap-2">
+        <NetworkBadge
+          isConnected={isConnected}
+          isCorrectNetwork={isCorrectNetwork}
+          networkName={RISE_CHAIN_TESTNET.name}
+          className="mr-2"
+        />
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="gradient"
+                size="icon"
+                onClick={handleConnect}
+                disabled={isPending || isAddingNetwork}
+                className="md:hidden w-8 h-8 p-0"
+              >
+                {isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Power className="h-4 w-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Connect Wallet</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <Button
+          variant="gradient"
+          size="default"
+          onClick={handleConnect}
+          disabled={isPending || isAddingNetwork}
+          className="hidden md:flex gap-2"
+        >
+          {isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Power className="h-4 w-4" />
+          )}
+          Connect Wallet
+        </Button>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={addRiseTestnet}
+                disabled={isPending || isAddingNetwork}
+                className="md:hidden w-8 h-8 p-0 hover:bg-white/10 hover:text-white transition-colors"
+              >
+                {isAddingNetwork ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Plus className="h-4 w-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Add RISE Testnet</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <Button
+          variant="outline"
+          size="default"
+          onClick={addRiseTestnet}
+          disabled={isPending || isAddingNetwork}
+          className="hidden md:flex hover:bg-white/10 hover:text-white transition-colors gap-2"
+        >
+          {isAddingNetwork ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Plus className="h-4 w-4" />
+          )}
+          Add RISE Testnet
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-2">
-      {!isConnected ? (
-        <button
-          onClick={connectWallet}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Connect Wallet
-        </button>
-      ) : (
-        <div className="flex flex-col gap-2">
-          <p className="text-sm">Connected: {address}</p>
-          <button
-            onClick={() => {
-              setIsConnected(false);
-              setAddress(null);
-            }}
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-          >
-            Disconnect
-          </button>
-        </div>
-      )}
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-      <button
-        onClick={addRiseTestnet}
-        className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+    <div className="flex items-center gap-2">
+      <NetworkBadge
+        isConnected={isConnected}
+        isCorrectNetwork={isCorrectNetwork}
+        networkName={RISE_CHAIN_TESTNET.name}
+        className="mr-2"
+      />
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="md:hidden w-8 h-8 p-0 font-mono bg-white/5 border-white/20 text-white hover:bg-white/10 hover:text-white transition-colors"
+              onClick={() => window.open(RISE_CHAIN_TESTNET.blockExplorers.default.url + '/address/' + address, '_blank')}
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>View on Explorer</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      <Button
+        variant="outline"
+        size="default"
+        className="hidden md:flex font-mono gap-2 bg-white/5 border-white/20 text-white hover:bg-white/10 hover:text-white transition-colors"
+        onClick={() => window.open(RISE_CHAIN_TESTNET.blockExplorers.default.url + '/address/' + address, '_blank')}
       >
-        Add RISE Testnet
-      </button>
-      {wait24Hours && (
-        <div className="flex gap-2">
-          <button
-            onClick={() => window.open('https://x.com/share?text=Check%20this%20out!', '_blank')}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Share on X
-          </button>
-          <button
-            onClick={() => window.open('https://t.me/share/url?url=https://example.com&text=Check%20this%20out!', '_blank')}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Share on Telegram
-          </button>
-        </div>
-      )}
+        {formatAddress(address!)}
+        <ExternalLink className="h-4 w-4" />
+      </Button>
+
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => disconnect()}
+              className="md:hidden w-8 h-8 p-0 bg-white/5 border-white/20 text-white hover:bg-white/10 hover:text-white transition-colors"
+            >
+              <Power className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Disconnect</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      <Button
+        variant="outline"
+        size="default"
+        onClick={() => disconnect()}
+        className="hidden md:flex gap-2 bg-white/5 border-white/20 text-white hover:bg-white/10 hover:text-white transition-colors"
+      >
+        <Power className="h-4 w-4" />
+        Disconnect
+      </Button>
     </div>
   );
 } 

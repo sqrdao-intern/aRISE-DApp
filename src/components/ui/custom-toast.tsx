@@ -7,29 +7,29 @@ export const customToast = {
   success: (title: string, description?: string) => {
     toast.success(title, {
       description,
-      icon: <CheckCircle2 className="text-green-500" />,
-      className: 'bg-green-50 border-green-200',
+      icon: <CheckCircle2 className="h-5 w-5 text-green-500" />,
+      className: "bg-white/10 backdrop-blur-lg border border-white/20 text-white",
     });
   },
   error: (title: string, description?: string) => {
     toast.error(title, {
       description,
-      icon: <XCircle className="text-red-500" />,
-      className: 'bg-red-50 border-red-200',
+      icon: <XCircle className="h-5 w-5 text-red-500" />,
+      className: "bg-white/10 backdrop-blur-lg border border-white/20 text-white",
     });
   },
   warning: (title: string, description?: string) => {
     toast.warning(title, {
       description,
-      icon: <AlertCircle className="text-yellow-500" />,
-      className: 'bg-yellow-50 border-yellow-200',
+      icon: <AlertCircle className="h-5 w-5 text-yellow-500" />,
+      className: "bg-white/10 backdrop-blur-lg border border-white/20 text-white",
     });
   },
   info: (title: string, description?: string) => {
     toast.info(title, {
       description,
-      icon: <Info className="text-blue-500" />,
-      className: 'bg-blue-50 border-blue-200',
+      icon: <Info className="h-5 w-5 text-blue-500" />,
+      className: "bg-white/10 backdrop-blur-lg border border-white/20 text-white",
     });
   },
 }; 
