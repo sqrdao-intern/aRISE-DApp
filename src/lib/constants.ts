@@ -1,4 +1,4 @@
-export const ARISE_CONTRACT_ADDRESS = '0x1234567890123456789012345678901234567890'; // Replace with actual contract address
+export const ARISE_CONTRACT_ADDRESS = '0x696c2Da4D0D8E1C8e1c8EaC2d068238dc99821Cf';
 
 export const ARISE_CONTRACT_ABI = [
   {
