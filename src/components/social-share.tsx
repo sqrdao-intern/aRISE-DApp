@@ -31,7 +31,7 @@ export function SocialShare({ userAriseCount, totalAriseCount, address, isNewTra
   };
 
   return (
-    <div className="flex gap-2 mt-4">
+    <div className="flex flex-col sm:flex-row gap-2 mt-4">
       <Button
         onClick={handleTwitterShare}
         className="flex-1 bg-[#1DA1F2] hover:bg-[#1a8cd8] text-white"
