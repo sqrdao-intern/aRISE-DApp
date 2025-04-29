@@ -7,17 +7,18 @@ interface SocialShareProps {
   userAriseCount: bigint;
   totalAriseCount: bigint;
   address?: string;
+  isNewTransaction?: boolean;
 }
 
-export function SocialShare({ userAriseCount, totalAriseCount, address }: SocialShareProps) {
+export function SocialShare({ userAriseCount, totalAriseCount, address, isNewTransaction = false }: SocialShareProps) {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
   const shareUrl = `${baseUrl}?ref=${address}`;
 
-  // Calculate the new count (current count + 1 for the just completed transaction)
-  const newUserCount = BigInt(userAriseCount) + BigInt(1);
-  const newTotalCount = BigInt(totalAriseCount) + BigInt(1);
+  // Only increment counts if it's a new transaction
+  const displayUserCount = isNewTransaction ? BigInt(userAriseCount) + BigInt(1) : userAriseCount;
+  const displayTotalCount = isNewTransaction ? BigInt(totalAriseCount) + BigInt(1) : totalAriseCount;
 
-  const shareText = `I just said aRISE ${newUserCount.toString()} time${newUserCount > 1 ? 's' : ''}! Join me in this journey to ${newTotalCount.toString()} total aRISEs! 🚀`;
+  const shareText = `I just said aRISE ${displayUserCount.toString()} time${displayUserCount > 1 ? 's' : ''}! Join me in this journey to ${displayTotalCount.toString()} total aRISEs! 🚀`;
 
   const handleTwitterShare = () => {
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;

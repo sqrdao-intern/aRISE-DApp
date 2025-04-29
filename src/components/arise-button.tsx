@@ -25,6 +25,7 @@ export function AriseButton() {
   const [totalAriseCount, setTotalAriseCount] = useState<bigint>(BigInt(0));
   const [transactionHash, setTransactionHash] = useState<`0x${string}` | undefined>();
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isNewTransaction, setIsNewTransaction] = useState(false);
   const lastEventRef = useRef<string>('');
   
   const { isOnCooldown, formattedTime, startCooldown } = useCooldown(address);
@@ -35,6 +36,10 @@ export function AriseButton() {
     setTimeout(() => setIsUpdating(false), 1000); // Animation duration
     // Start cooldown when transaction is confirmed
     startCooldown();
+    // Mark as new transaction for sharing
+    setIsNewTransaction(true);
+    // Reset new transaction flag after a delay
+    setTimeout(() => setIsNewTransaction(false), 5000);
   });
 
   const { writeContract } = useWriteContract({
@@ -193,6 +198,7 @@ export function AriseButton() {
         userAriseCount={userAriseCount}
         totalAriseCount={totalAriseCount}
         address={address}
+        isNewTransaction={isNewTransaction}
       />
     </div>
   );
