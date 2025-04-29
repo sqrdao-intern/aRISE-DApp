@@ -167,11 +167,13 @@ export function AriseButton() {
         </motion.div>
       </div>
       
-      <TransactionStatus 
-        status={status} 
-        hash={transactionHash} 
-        error={error} 
-      />
+      {!isOnCooldown && (
+        <TransactionStatus 
+          status={status} 
+          hash={transactionHash} 
+          error={error} 
+        />
+      )}
 
       {isOnCooldown && (
         <div className="flex items-center justify-center gap-2 p-4 bg-yellow-50 text-yellow-800 rounded-lg border border-yellow-200">
