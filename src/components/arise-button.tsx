@@ -146,6 +146,8 @@ export function AriseButton() {
     }
   };
 
+  console.log('AriseButton rendered with isNewTransaction:', isNewTransaction);
+
   return (
     <div className="w-full space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -190,6 +192,7 @@ export function AriseButton() {
         className={cn(
           'w-full h-14 text-lg font-medium rounded-2xl transition-all duration-200',
           'bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20',
+          'enabled:bg-gradient-to-r enabled:from-white enabled:to-white/20 enabled:text-black',
           status === 'success' && 'bg-green-500/80 hover:bg-green-600/80 border-green-400/30',
           status === 'error' && 'bg-red-500/80 hover:bg-red-600/80 border-red-400/30',
           status === 'pending' && 'bg-yellow-500/80 hover:bg-yellow-600/80 border-yellow-400/30',
@@ -201,24 +204,12 @@ export function AriseButton() {
         {isLoading || isTransactionLoading ? 'Processing...' : 'Say aRISE'}
       </Button>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Button
-          onClick={() => {}}
-          variant="outline"
-          size="lg"
-          className="w-full bg-[#1DA1F2]/90 hover:bg-[#1DA1F2] text-white border-white/20 backdrop-blur-sm rounded-2xl"
-        >
-          Share on X
-        </Button>
-        <Button
-          onClick={() => {}}
-          variant="outline"
-          size="lg"
-          className="w-full bg-[#0088cc]/90 hover:bg-[#0088cc] text-white border-white/20 backdrop-blur-sm rounded-2xl"
-        >
-          Share on Telegram
-        </Button>
-      </div>
+      <SocialShare
+        userAriseCount={userAriseCount}
+        totalAriseCount={totalAriseCount}
+        address={address}
+        isNewTransaction={isNewTransaction}
+      />
     </div>
   );
 } 

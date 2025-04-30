@@ -1,6 +1,6 @@
 "use client"
 
-import { MessageSquare, Wallet } from "lucide-react"
+import { MessageSquare, Wallet, Trophy } from "lucide-react"
 import { SidebarNav } from "@/components/ui/sidebar-nav"
 
 export function SidebarNavigation() {
@@ -14,6 +14,11 @@ export function SidebarNavigation() {
       href: "/wallet",
       title: "Wallet",
       icon: <Wallet className="h-5 w-5" />,
+    },
+    {
+      href: "/points",
+      title: "Points",
+      icon: <Trophy className="h-5 w-5" />,
     },
   ]
 
