@@ -1,32 +1,40 @@
 # aRISE DApp
 
-aRISE is a decentralized application built with Next.js and Firebase, designed to create an engaging social experience through RISE blockchain. The application allows users to participate in a unique "aRISE" ritual by connecting their wallet and sharing their participation with others.
+aRISE is a decentralized application built with Next.js and Firebase, designed to create an engaging social experience through RISE blockchain. The application features a modern, professional UI matching the RISE Chain Portal style, with a clean purple gradient theme and glass-morphic design elements.
 
 ## Features
 
-- 🔐 Wallet Integration: Connect your Web3 wallet to participate
+- 🔐 Wallet Integration: Connect your Web3 wallet to participate with real-time network status
 - ⏱️ 24-Hour Cooldown: Users can participate once every 24 hours with a visual countdown timer
 - 📱 Social Sharing: Share your participation on X (Twitter) and Telegram with real-time count updates
 - 🔗 Unique Invite Links: Generate and share personalized invite links
-- 🎨 Modern UI: Built with Tailwind CSS and Radix UI components
+- 🎨 Modern UI: Built with Tailwind CSS, featuring RISE Chain Portal-inspired design
+  - Glass-morphic components with gradient effects
+  - Smooth animations and transitions
+  - Responsive layout with modern typography
 - 🔄 Real-time Updates: Live updates of user and total aRISE counts
-- 🎯 Transaction Status: Clear visual feedback for transaction states (pending, success, error)
+- 🎯 Transaction Status: Clear visual feedback for transaction states with expandable details
 - 🎉 Interactive Animations: Smooth animations for count updates and state changes
-- 🛡️ Error Handling: Comprehensive error handling for blockchain interactions
+- 🛡️ Error Handling: Comprehensive error handling with toast notifications
+- 💎 Token Management: View balances and transaction history with modern card UI
+- 🤖 AI Integration: Built-in AI capabilities using Genkit for enhanced user experience
+- 📊 Analytics: Vercel Analytics integration for performance monitoring
 
 ## Tech Stack
 
-- **Frontend Framework**: Next.js 15 with TypeScript
-- **Styling**: Tailwind CSS with custom animations
+- **Frontend Framework**: Next.js 15.2.3 with TypeScript
+- **Styling**: Tailwind CSS with custom animations and glass-morphic effects
 - **UI Components**: Radix UI with custom shadcn/ui components
-- **State Management**: React Query
+- **State Management**: React Query with Firebase integration
 - **Backend**: Firebase
 - **Blockchain**: RISE Chain (EVM-compatible)
 - **Web3 Integration**: Wagmi and Viem
 - **Form Handling**: React Hook Form with Zod validation
 - **Date Handling**: date-fns
 - **Animations**: Framer Motion
-- **Notifications**: Custom toast system
+- **Notifications**: Sonner toast system with glass-morphic design
+- **AI Integration**: Genkit with Google AI
+- **Analytics**: Vercel Analytics
 
 ## Getting Started
 
@@ -43,9 +51,7 @@ aRISE is a decentralized application built with Next.js and Firebase, designed t
 3. Set up environment variables:
    - Copy `.env.example` to `.env`
    - Fill in the required environment variables:
-     - `NEXT_PUBLIC_RISE_CHAIN_ID`: RISE Chain network ID
-     - `NEXT_PUBLIC_RISE_RPC_URL`: RISE Chain RPC endpoint
-     - `NEXT_PUBLIC_CONTRACT_ADDRESS`: aRISE smart contract address
+     - `GOOGLE_GENAI_API_KEY`: Google GenAI API key (for Genkit integration)
 
 4. Run the development server:
    ```bash
@@ -56,7 +62,9 @@ aRISE is a decentralized application built with Next.js and Firebase, designed t
 
 ## Available Scripts
 
-- `npm run dev`: Start the development server
+- `npm run dev`: Start the development server with Turbopack
+- `npm run genkit:dev`: Start Genkit AI development server
+- `npm run genkit:watch`: Start Genkit AI development server with watch mode
 - `npm run build`: Build the application for production
 - `npm run start`: Start the production server
 - `npm run lint`: Run ESLint
@@ -66,23 +74,35 @@ aRISE is a decentralized application built with Next.js and Firebase, designed t
 
 - `/src/app`: Next.js app router pages and layouts
 - `/src/components`: Reusable UI components
-  - `arise-button.tsx`: Main interaction component
+  - `arise-button.tsx`: Main interaction component with gradient effects
   - `social-share.tsx`: Social sharing functionality
-  - `transaction-status.tsx`: Transaction state display
+  - `transaction-status.tsx`: Transaction state display with expandable details
+  - `token-display.tsx`: Token balance and transaction history
+  - `token-transfer.tsx`: Token transfer interface
 - `/src/hooks`: Custom React hooks
   - `useRiseChain.ts`: RISE Chain connection management
   - `useTransactionStatus.ts`: Transaction status tracking
   - `useCooldown.ts`: 24-hour cooldown implementation
+- `/src/ai`: AI integration using Genkit
+- `/src/lib`: Utility functions and constants
+- `/src/types`: TypeScript type definitions
 - `/contracts`: Smart contract code
-- `/lib`: Utility functions and constants
 - `/docs`: Project documentation
 
 ## Key Features in Detail
 
 ### Wallet Integration
 - Seamless connection to Web3 wallets
+- Real-time network status indicator
 - Automatic network detection and switching
-- Clear error messages for connection issues
+- Clear error messages with toast notifications
+
+### Token Management
+- Modern glass-morphic card design for balances
+- Transaction history with expandable details
+- Secure transfer functionality with validation
+- Real-time balance updates
+- Loading states with skeleton UI
 
 ### 24-Hour Cooldown
 - Visual countdown timer
@@ -96,8 +116,15 @@ aRISE is a decentralized application built with Next.js and Firebase, designed t
 
 ### Transaction Management
 - Real-time transaction status updates
+- Expandable transaction details
 - Clear visual feedback for all transaction states
-- Comprehensive error handling and user notifications
+- Comprehensive error handling with toast notifications
+- 5-second delay for balance refresh after confirmation
+
+### AI Integration
+- Genkit-powered AI features
+- Google AI integration for enhanced functionality
+- Development and watch modes for AI features
 
 ## Contributing
 

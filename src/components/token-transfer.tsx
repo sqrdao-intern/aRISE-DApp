@@ -24,7 +24,7 @@ export function TokenTransfer({ onTransferComplete }: TokenTransferProps) {
 
   if (!isConnected) {
     return (
-      <Card variant="glass" className="p-6">
+      <Card variant="glass" className="p-6 bg-white/10 w-full">
         <div className="flex flex-col items-center justify-center text-center space-y-2">
           <div className="inline-flex px-4 py-1 rounded-full border border-white/20 text-white/60">
             Not Connected
@@ -130,9 +130,10 @@ export function TokenTransfer({ onTransferComplete }: TokenTransferProps) {
           size="lg"
           className={cn(
             'w-full gap-2 transition-all duration-200',
+            'enabled:bg-gradient-to-r enabled:from-white enabled:via-white/40 enabled:to-white/20 enabled:text-black',
             isLoading && 'bg-yellow-500 hover:bg-yellow-600 text-white',
             (!isConnected || !recipient || !amount) && 'bg-gray-300 text-gray-800 border border-gray-400 shadow',
-            !(isLoading || !isConnected || !recipient || !amount) && 'enabled:animate-pulse-subtle'
+            !(isLoading || !recipient || !amount) && 'enabled:animate-pulse-subtle'
           )}
           onClick={handleTransfer}
           disabled={isLoading || !recipient || !amount}

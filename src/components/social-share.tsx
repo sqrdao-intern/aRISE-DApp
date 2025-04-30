@@ -11,6 +11,7 @@ interface SocialShareProps {
 }
 
 export function SocialShare({ userAriseCount, totalAriseCount, address, isNewTransaction = false }: SocialShareProps) {
+  console.log('SocialShare rendered with props', { userAriseCount, totalAriseCount, address, isNewTransaction });
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
   const shareUrl = `${baseUrl}?ref=${address}`;
 
@@ -21,11 +22,13 @@ export function SocialShare({ userAriseCount, totalAriseCount, address, isNewTra
   const shareText = `I just said aRISE ${displayUserCount.toString()} time${displayUserCount > 1 ? 's' : ''} on the @rise_chain Testnet! Join me in this journey to spread aRISEs to the world! 🚀`;
 
   const handleTwitterShare = () => {
+    console.log('Twitter share clicked:', shareText, shareUrl);
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
     window.open(twitterUrl, '_blank');
   };
 
   const handleTelegramShare = () => {
+    console.log('Telegram share clicked:', shareText, shareUrl);
     const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
     window.open(telegramUrl, '_blank');
   };
