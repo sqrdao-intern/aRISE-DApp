@@ -4,13 +4,17 @@ import { Card } from "@/components/ui/card"
 import { MessageSquare, Send, Share2, Clock, ChevronLeft, ChevronRight } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { motion, AnimatePresence } from "framer-motion"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { usePoints } from "@/hooks/usePoints"
+import { useRiseChain } from "@/hooks/useRiseChain"
+import { useReadContract, useWatchContractEvent } from "wagmi"
+import { POINTS_CONTRACT_ADDRESS, POINTS_CONTRACT_ABI } from "@/lib/constants"
 
 interface PointTransaction {
   id: string
-  type: "say-arise" | "send-eth" | "share"
+  type: "say-arise" | "send-eth" | "share" | "burn"
   points: number
   timestamp: Date
   details?: string
@@ -20,21 +24,69 @@ const transactionIcons = {
   "say-arise": MessageSquare,
   "send-eth": Send,
   "share": Share2,
+  "burn": ChevronRight,
 }
 
 const transactionLabels = {
   "say-arise": "Said aRISE",
   "send-eth": "Sent ETH",
   "share": "Shared on Social Media",
+  "burn": "Burned Points",
 }
 
 type SortOption = "newest" | "oldest" | "points-high" | "points-low"
 
 const ITEMS_PER_PAGE = 5
 
-export function PointsHistory({ transactions }: { transactions: PointTransaction[] }) {
+interface PointsHistoryProps {
+  onHistoryChange?: (hasHistory: boolean) => void;
+}
+
+export function PointsHistory({ onHistoryChange }: PointsHistoryProps) {
+  const { address, isConnected } = useRiseChain()
   const [sortBy, setSortBy] = useState<SortOption>("newest")
   const [currentPage, setCurrentPage] = useState(1)
+  const [transactions, setTransactions] = useState<PointTransaction[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Notify parent of history changes
+  useEffect(() => {
+    if (onHistoryChange) {
+      onHistoryChange(transactions.length > 0)
+    }
+  }, [transactions.length, onHistoryChange])
+
+  // Watch for points events
+  useWatchContractEvent({
+    address: POINTS_CONTRACT_ADDRESS,
+    abi: POINTS_CONTRACT_ABI,
+    eventName: "PointsUpdated",
+    onLogs: (logs) => {
+      if (logs.length === 0) {
+        setIsLoading(false); // No logs, so stop loading
+        return
+      }
+      const event = logs[0] as { args: { user: string; newPoints: bigint; type: string } }
+      if (event.args.user.toLowerCase() === address?.toLowerCase()) {
+        const newTransaction: PointTransaction = {
+          id: `${event.args.user}-${Date.now()}`,
+          type: event.args.type as PointTransaction["type"],
+          points: Number(event.args.newPoints),
+          timestamp: new Date(),
+        }
+        setTransactions(prev => [newTransaction, ...prev])
+        setIsLoading(false)
+      }
+    },
+  })
+
+  // Ensure loading is cleared after first render if there are no transactions
+  useEffect(() => {
+    if (isLoading && transactions.length === 0) {
+      const timeout = setTimeout(() => setIsLoading(false), 1000)
+      return () => clearTimeout(timeout)
+    }
+  }, [isLoading, transactions.length])
 
   // Sort transactions
   const sortedTransactions = [...transactions].sort((a, b) => {
@@ -56,6 +108,24 @@ export function PointsHistory({ transactions }: { transactions: PointTransaction
   const totalPages = Math.ceil(sortedTransactions.length / ITEMS_PER_PAGE)
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
   const paginatedTransactions = sortedTransactions.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+
+  if (!isConnected) {
+    return (
+      <div className="text-sm text-gray-400 flex items-center gap-2">
+        <Clock className="w-4 h-4" />
+        Connect your wallet to view points history
+      </div>
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <div className="text-sm text-gray-400 flex items-center gap-2">
+        <Clock className="w-4 h-4 animate-spin" />
+        Loading points history...
+      </div>
+    )
+  }
 
   if (transactions.length === 0) {
     return (
@@ -116,7 +186,7 @@ export function PointsHistory({ transactions }: { transactions: PointTransaction
                   <motion.span 
                     className="text-sm font-semibold text-white"
                   >
-                    +{transaction.points} points
+                    {transaction.type === "burn" ? "-" : "+"}{transaction.points} points
                   </motion.span>
                 </motion.div>
                 <motion.div 
@@ -162,6 +232,33 @@ export function PointsHistory({ transactions }: { transactions: PointTransaction
             </Button>
           </div>
         </div>
+      )}
+
+      {(isLoading || transactions.length > 0) && (
+        <Card className="p-6 mb-8 bg-white/10 backdrop-blur-lg">
+          <h2 className="text-2xl font-semibold mb-4">Your Points</h2>
+          {transactions.length > 0 ? (
+            <motion.div 
+              key={transactions[0].points?.toString()}
+              initial={{ scale: 1.5, color: "#A855F7" }}
+              animate={{ scale: 1, color: "#FFFFFF" }}
+              className="text-4xl font-bold mb-2"
+            >
+              {isLoading ? "Loading..." : transactions[0].points?.toString()}
+            </motion.div>
+          ) : (
+            isLoading && (
+              <motion.div 
+                initial={{ scale: 1.5, color: "#A855F7" }}
+                animate={{ scale: 1, color: "#FFFFFF" }}
+                className="text-4xl font-bold mb-2"
+              >
+                Loading...
+              </motion.div>
+            )
+          )}
+          <p className="text-sm text-white/70">Total points earned</p>
+        </Card>
       )}
     </div>
   )

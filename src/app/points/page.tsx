@@ -1,97 +1,54 @@
 "use client"
 
 import { Card } from "@/components/ui/card";
-import { Share2, MessageSquare, Send } from "lucide-react";
+import { Share2, MessageSquare, Send, Trophy, Flame } from "lucide-react";
 import { PointsHistory } from "@/components/points/points-history";
-import { useState } from "react";
+import { usePoints } from "@/hooks/usePoints";
+import { useRiseChain } from "@/hooks/useRiseChain";
 import { motion } from "framer-motion";
-
-interface Transaction {
-  id: string;
-  type: "say-arise" | "send-eth" | "share";
-  points: number;
-  timestamp: Date;
-  details?: string;
-}
-
-// Initial mock data
-const initialTransactions: Transaction[] = [
-  {
-    id: "1",
-    type: "say-arise",
-    points: 10,
-    timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
-  },
-  {
-    id: "2",
-    type: "send-eth",
-    points: 50,
-    timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-    details: "0.1 ETH to 0x123...456",
-  },
-  {
-    id: "3",
-    type: "share",
-    points: 1,
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-    details: "Shared on Twitter",
-  },
-  {
-    id: "4",
-    type: "say-arise",
-    points: 10,
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3), // 3 hours ago
-  },
-  {
-    id: "5",
-    type: "send-eth",
-    points: 50,
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4), // 4 hours ago
-    details: "0.05 ETH to 0x789...012",
-  },
-  {
-    id: "6",
-    type: "share",
-    points: 1,
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
-    details: "Shared on LinkedIn",
-  },
-  {
-    id: "7",
-    type: "say-arise",
-    points: 10,
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 6), // 6 hours ago
-  },
-  {
-    id: "8",
-    type: "send-eth",
-    points: 50,
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 7), // 7 hours ago
-    details: "0.2 ETH to 0x345...678",
-  },
-];
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { formatEther } from "viem";
 
 export default function PointsDashboard() {
-  const [transactions] = useState<Transaction[]>(initialTransactions);
-  const totalPoints = transactions.reduce((sum, t) => sum + t.points, 0);
+  const { isConnected, address } = useRiseChain();
+  const { points, isLoading, error, burnPoints } = usePoints();
+  const [burnAmount, setBurnAmount] = useState<string>("");
+  const [isBurning, setIsBurning] = useState(false);
+  const [hasHistory, setHasHistory] = useState(false);
+
+  const handleBurnPoints = async () => {
+    if (!burnAmount) return;
+    const amount = BigInt(burnAmount);
+    setIsBurning(true);
+    try {
+      await burnPoints(amount);
+      setBurnAmount("");
+    } finally {
+      setIsBurning(false);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Points Dashboard</h1>
       
       {/* Current Points Display */}
-      <Card className="p-6 mb-8 bg-white/10 backdrop-blur-lg">
-        <h2 className="text-2xl font-semibold mb-4">Your Points</h2>
-        <motion.div 
-          key={totalPoints}
-          initial={{ scale: 1.5, color: "#A855F7" }}
-          animate={{ scale: 1, color: "#FFFFFF" }}
-          className="text-4xl font-bold mb-2"
-        >
-          {totalPoints}
-        </motion.div>
-        <p className="text-sm text-white/70">Total points earned</p>
-      </Card>
+      {(isLoading || hasHistory) && (
+        <Card className="p-6 mb-8 bg-white/10 backdrop-blur-lg">
+          <h2 className="text-2xl font-semibold mb-4">Your Points</h2>
+          <motion.div 
+            key={points?.toString()}
+            initial={{ scale: 1.5, color: "#A855F7" }}
+            animate={{ scale: 1, color: "#FFFFFF" }}
+            className="text-4xl font-bold mb-2"
+          >
+            {isLoading ? "Loading..." : points?.toString() || "0"}
+          </motion.div>
+          <p className="text-sm text-white/70">Total points earned</p>
+        </Card>
+      )}
 
       {/* Points Rules */}
       <Card className="p-6 mb-8 bg-white/10 backdrop-blur-lg">
@@ -127,10 +84,42 @@ export default function PointsDashboard() {
         </div>
       </Card>
 
+      {/* Points Burning */}
+      {/* {isConnected && points && points >= BigInt(1000) && (
+        <Card className="p-6 mb-8 bg-white/10 backdrop-blur-lg">
+          <h2 className="text-2xl font-semibold mb-4">Burn Points</h2>
+          <p className="text-sm text-white/70 mb-4">
+            Burn your points to unlock future perks. Minimum burn amount is 1000 points.
+          </p>
+          <div className="flex gap-4">
+            <Input
+              type="number"
+              placeholder="Amount to burn"
+              value={burnAmount}
+              onChange={(e) => setBurnAmount(e.target.value)}
+              className="bg-white/5 border-white/20"
+            />
+            <Button
+              onClick={handleBurnPoints}
+              disabled={isBurning || !burnAmount || BigInt(burnAmount) < BigInt(1000)}
+              variant="outline"
+              className="bg-white/5 border-white/20 text-white hover:bg-white/10"
+            >
+              {isBurning ? (
+                <Flame className="w-4 h-4 animate-pulse" />
+              ) : (
+                <Flame className="w-4 h-4" />
+              )}
+              Burn Points
+            </Button>
+          </div>
+        </Card>
+      )} */}
+
       {/* Points History */}
       <Card className="p-6 bg-white/10 backdrop-blur-lg">
         <h2 className="text-2xl font-semibold mb-4">Points History</h2>
-        <PointsHistory transactions={transactions} />
+        <PointsHistory onHistoryChange={setHasHistory} />
       </Card>
     </div>
   );

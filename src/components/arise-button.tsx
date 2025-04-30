@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useRiseChain } from '@/hooks/useRiseChain';
 import { useWriteContract, useReadContract, useWatchContractEvent } from 'wagmi';
 import { useState, useEffect, useRef } from 'react';
-import { ARISE_CONTRACT_ADDRESS, ARISE_CONTRACT_ABI } from '@/lib/constants';
+import { ARISE_CONTRACT_ADDRESS, ARISE_CONTRACT_ABI, POINTS_CONTRACT_ADDRESS, POINTS_CONTRACT_ABI } from '@/lib/constants';
 import { formatEther } from 'viem';
 import { useTransactionStatus } from '@/hooks/useTransactionStatus';
 import { TransactionStatus } from '@/components/transaction-status';
@@ -16,9 +16,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCooldown } from '@/hooks/useCooldown';
 import { Clock } from 'lucide-react';
 import { SocialShare } from '@/components/social-share';
+import { usePoints } from '@/hooks/usePoints';
 
 export function AriseButton() {
   const { isConnected, isOnRiseChain, address } = useRiseChain();
+  const { refetchPoints } = usePoints();
   const [isLoading, setIsLoading] = useState(false);
   const [userBalance, setUserBalance] = useState<string>('0');
   const [userAriseCount, setUserAriseCount] = useState<bigint>(BigInt(0));
@@ -40,6 +42,12 @@ export function AriseButton() {
     setIsNewTransaction(true);
     // Reset new transaction flag after a delay
     setTimeout(() => setIsNewTransaction(false), 5000);
+    // Refresh points and arise counts after a short delay to ensure blockchain state is updated
+    setTimeout(() => {
+      refetchPoints();
+      refetchUserCount();
+      refetchTotalCount();
+    }, 2000);
   });
 
   const { writeContract } = useWriteContract({
@@ -86,6 +94,24 @@ export function AriseButton() {
         lastEventRef.current = eventKey;
         customToast.info('New aRISE!', `User: ${event.args.user}`);
         // Refresh counts when new event is detected
+        refetchUserCount();
+        refetchTotalCount();
+      }
+    },
+  });
+
+  // Watch for points updates
+  useWatchContractEvent({
+    address: POINTS_CONTRACT_ADDRESS,
+    abi: POINTS_CONTRACT_ABI,
+    eventName: 'PointsUpdated',
+    onLogs: (logs) => {
+      if (logs.length === 0) return;
+      const event = logs[0] as { args: { user: string; newPoints: bigint } };
+      if (event.args.user.toLowerCase() === address?.toLowerCase()) {
+        customToast.success('Points Updated', `New balance: ${event.args.newPoints.toString()}`);
+        // Refresh all counts when points are updated
+        refetchPoints();
         refetchUserCount();
         refetchTotalCount();
       }
