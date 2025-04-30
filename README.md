@@ -51,10 +51,7 @@ aRISE is a decentralized application built with Next.js and Firebase, designed t
 3. Set up environment variables:
    - Copy `.env.example` to `.env`
    - Fill in the required environment variables:
-     - `NEXT_PUBLIC_RISE_CHAIN_ID`: RISE Chain network ID
-     - `NEXT_PUBLIC_RISE_RPC_URL`: RISE Chain RPC endpoint
-     - `NEXT_PUBLIC_CONTRACT_ADDRESS`: aRISE smart contract address
-     - `GOOGLE_AI_API_KEY`: Google AI API key (for Genkit integration)
+     - `GOOGLE_GENAI_API_KEY`: Google GenAI API key (for Genkit integration)
 
 4. Run the development server:
    ```bash
