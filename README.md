@@ -17,20 +17,24 @@ aRISE is a decentralized application built with Next.js and Firebase, designed t
 - 🎉 Interactive Animations: Smooth animations for count updates and state changes
 - 🛡️ Error Handling: Comprehensive error handling with toast notifications
 - 💎 Token Management: View balances and transaction history with modern card UI
+- 🤖 AI Integration: Built-in AI capabilities using Genkit for enhanced user experience
+- 📊 Analytics: Vercel Analytics integration for performance monitoring
 
 ## Tech Stack
 
-- **Frontend Framework**: Next.js 15 with TypeScript
+- **Frontend Framework**: Next.js 15.2.3 with TypeScript
 - **Styling**: Tailwind CSS with custom animations and glass-morphic effects
 - **UI Components**: Radix UI with custom shadcn/ui components
-- **State Management**: React Query
+- **State Management**: React Query with Firebase integration
 - **Backend**: Firebase
 - **Blockchain**: RISE Chain (EVM-compatible)
 - **Web3 Integration**: Wagmi and Viem
 - **Form Handling**: React Hook Form with Zod validation
 - **Date Handling**: date-fns
 - **Animations**: Framer Motion
-- **Notifications**: Custom toast system with glass-morphic design
+- **Notifications**: Sonner toast system with glass-morphic design
+- **AI Integration**: Genkit with Google AI
+- **Analytics**: Vercel Analytics
 
 ## Getting Started
 
@@ -50,6 +54,7 @@ aRISE is a decentralized application built with Next.js and Firebase, designed t
      - `NEXT_PUBLIC_RISE_CHAIN_ID`: RISE Chain network ID
      - `NEXT_PUBLIC_RISE_RPC_URL`: RISE Chain RPC endpoint
      - `NEXT_PUBLIC_CONTRACT_ADDRESS`: aRISE smart contract address
+     - `GOOGLE_AI_API_KEY`: Google AI API key (for Genkit integration)
 
 4. Run the development server:
    ```bash
@@ -60,7 +65,9 @@ aRISE is a decentralized application built with Next.js and Firebase, designed t
 
 ## Available Scripts
 
-- `npm run dev`: Start the development server
+- `npm run dev`: Start the development server with Turbopack
+- `npm run genkit:dev`: Start Genkit AI development server
+- `npm run genkit:watch`: Start Genkit AI development server with watch mode
 - `npm run build`: Build the application for production
 - `npm run start`: Start the production server
 - `npm run lint`: Run ESLint
@@ -79,8 +86,10 @@ aRISE is a decentralized application built with Next.js and Firebase, designed t
   - `useRiseChain.ts`: RISE Chain connection management
   - `useTransactionStatus.ts`: Transaction status tracking
   - `useCooldown.ts`: 24-hour cooldown implementation
+- `/src/ai`: AI integration using Genkit
+- `/src/lib`: Utility functions and constants
+- `/src/types`: TypeScript type definitions
 - `/contracts`: Smart contract code
-- `/lib`: Utility functions and constants
 - `/docs`: Project documentation
 
 ## Key Features in Detail
@@ -114,6 +123,11 @@ aRISE is a decentralized application built with Next.js and Firebase, designed t
 - Clear visual feedback for all transaction states
 - Comprehensive error handling with toast notifications
 - 5-second delay for balance refresh after confirmation
+
+### AI Integration
+- Genkit-powered AI features
+- Google AI integration for enhanced functionality
+- Development and watch modes for AI features
 
 ## Contributing
 
