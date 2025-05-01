@@ -28,6 +28,12 @@ export default function WalletPage() {
     }
   }, [transactionReceipt]);
 
+  const onTransferComplete = (hash: `0x${string}`, senderAddress: string) => {
+    setPendingTx(hash);
+    console.log('Transaction completed by sender:', senderAddress);
+    // Confirm point addition based on sender address
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-white mb-8">Wallet</h1>
@@ -49,9 +55,7 @@ export default function WalletPage() {
         </div>
         <div className="lg:sticky lg:top-8 w-full">
           <TokenTransfer
-            onTransferComplete={(hash) => {
-              setPendingTx(hash);
-            }}
+            onTransferComplete={onTransferComplete}
           />
         </div>
       </div>
