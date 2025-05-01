@@ -35,7 +35,7 @@ export default function PointsDashboard() {
       <h1 className="text-3xl font-bold mb-8">Points Dashboard</h1>
       
       {/* Current Points Display */}
-      {(isLoading || hasHistory) && (
+      {(
         <Card className="p-6 mb-8 bg-white/10 backdrop-blur-lg">
           <h2 className="text-2xl font-semibold mb-4">Your Points</h2>
           <motion.div 
@@ -60,7 +60,7 @@ export default function PointsDashboard() {
             </div>
             <div>
               <h3 className="font-medium text-white">Say aRISE</h3>
-              <p className="text-sm text-white/80">Earn 10 points each time</p>
+              <p className="text-sm text-white/80">Earn 20 points each time</p>
             </div>
           </div>
           <div className="flex items-center gap-4 p-4 rounded-lg bg-white/10">
@@ -78,7 +78,7 @@ export default function PointsDashboard() {
             </div>
             <div>
               <h3 className="font-medium text-white">Share on Social Media</h3>
-              <p className="text-sm text-white/80">Earn 1 point for each share</p>
+              <p className="text-sm text-white/80">Earn 10 points for each share</p>
             </div>
           </div>
         </div>
@@ -121,6 +121,7 @@ export default function PointsDashboard() {
         <h2 className="text-2xl font-semibold mb-4">Points History</h2>
         <PointsHistory onHistoryChange={setHasHistory} />
       </Card>
+      {/* End Points History */}
     </div>
   );
 } 

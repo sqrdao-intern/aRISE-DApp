@@ -76,9 +76,7 @@ export function TokenDisplay({ address, isConnected }: TokenDisplayProps) {
     setIsLoadingBalance(true);
     setError(null);
     try {
-      console.log('Fetching balance for address:', address);
       const balance = await publicClient.getBalance({ address });
-      console.log('Fetched balance:', balance.toString());
       setBalance(balance);
     } catch (err) {
       console.error('Error fetching balance:', err);
@@ -94,10 +92,8 @@ export function TokenDisplay({ address, isConnected }: TokenDisplayProps) {
     setError(null);
     try {
       const apiUrl = `https://explorer.testnet.riselabs.xyz/api?module=account&action=txlist&address=${address}&sort=desc`;
-      console.log('Fetching from URL:', apiUrl);
       
       const response = await fetch(apiUrl);
-      console.log('Response status:', response.status);
       
       if (!response.ok) {
         const errorText = await response.text();
@@ -122,18 +118,12 @@ export function TokenDisplay({ address, isConnected }: TokenDisplayProps) {
         return;
       }
 
-      console.log('Raw transactions:', data.result);
-
       const parsedTransactions: Transaction[] = data.result
         .filter((tx: ExplorerTransaction) => {
           const isValid = tx.isError === '0' && tx.txreceipt_status === '1';
-          if (!isValid) {
-            console.log('Filtered out transaction:', tx.hash, 'Error:', tx.isError, 'Status:', tx.txreceipt_status);
-          }
           return isValid;
         })
         .map((tx: ExplorerTransaction) => {
-          console.log('Processing transaction:', tx.hash);
           return {
             hash: tx.hash as `0x${string}`,
             type: tx.from.toLowerCase() === address.toLowerCase() ? 'sent' : 'received',

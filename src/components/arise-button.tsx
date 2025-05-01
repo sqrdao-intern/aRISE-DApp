@@ -104,12 +104,12 @@ export function AriseButton() {
   useWatchContractEvent({
     address: POINTS_CONTRACT_ADDRESS,
     abi: POINTS_CONTRACT_ABI,
-    eventName: 'PointsUpdated',
+    eventName: 'PointsAwarded',
     onLogs: (logs) => {
       if (logs.length === 0) return;
-      const event = logs[0] as { args: { user: string; newPoints: bigint } };
+      const event = logs[0] as { args: { user: string; points: bigint; action: string } };
       if (event.args.user.toLowerCase() === address?.toLowerCase()) {
-        customToast.success('Points Updated', `New balance: ${event.args.newPoints.toString()}`);
+        customToast.success('Points Updated', `New balance: ${event.args.points.toString()}`);
         // Refresh all counts when points are updated
         refetchPoints();
         refetchUserCount();
@@ -171,8 +171,6 @@ export function AriseButton() {
       setIsLoading(false);
     }
   };
-
-  console.log('AriseButton rendered with isNewTransaction:', isNewTransaction);
 
   return (
     <div className="w-full space-y-6">

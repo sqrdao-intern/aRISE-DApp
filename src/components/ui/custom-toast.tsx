@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 
 export const customToast = {
   success: (title: string, description?: string) => {
+    console.log('customToast.success called', title, description);
     toast.success(title, {
       description,
       icon: <CheckCircle2 className="h-5 w-5 text-green-500" />,
