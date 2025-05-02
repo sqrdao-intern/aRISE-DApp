@@ -58,6 +58,13 @@ export function PointsHistory({ onHistoryChange }: PointsHistoryProps) {
   const [transactions, setTransactions] = useState<PointTransaction[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
+  // Reset pagination and block tracking when sort option changes
+  useEffect(() => {
+    setCurrentPage(1);
+    setMinFetchedBlock(0n);
+    setMaxFetchedBlock(0n);
+  }, [sortBy]);
+
   // Add debug logging for component state changes
   useEffect(() => {
     console.log('PointsHistory: Transactions state changed', {
@@ -82,89 +89,85 @@ export function PointsHistory({ onHistoryChange }: PointsHistoryProps) {
     }
   }, [transactions.length, onHistoryChange])
 
-  // Fetch past events when component mounts
-  useEffect(() => {
-    const fetchPastEvents = async () => {
-      if (!address || !isConnected || !publicClient) return;
+  // Callback to fetch past events for the connected user
+  const fetchPastEvents = useCallback(async () => {
+    if (!address || !isConnected || !publicClient) return;
 
-      setIsLoading(true);
-      setIsLoadingInitial(true);
-      console.log('PointsHistory: Fetching past events', { address });
-      try {
-        // Get current block number
-        const latestBlock = await publicClient.getBlockNumber();
-        // Initial load: fetch only the latest block window
-        const CHUNK_SIZE = 90000n;
-        const startBlock = latestBlock > CHUNK_SIZE ? latestBlock - CHUNK_SIZE : 0n;
-        // Cache block boundaries
-        setMaxFetchedBlock(latestBlock);
-        setMinFetchedBlock(startBlock);
-        console.log('PointsHistory: Initial fetch from recent blocks', { startBlock, toBlock: latestBlock });
-        const allLogs = await publicClient.getLogs({
-          address: POINTS_CONTRACT_ADDRESS,
-          event: {
-            type: 'event',
-            name: 'PointsAwarded',
-            inputs: [
-              { type: 'address', name: 'user', indexed: true },
-              { type: 'uint256', name: 'points', indexed: false },
-              { type: 'string', name: 'action', indexed: false }
-            ]
-          },
-          args: { user: ((address as `0x${string}`).toLowerCase() as `0x${string}`) },
-          fromBlock: startBlock,
-          toBlock: latestBlock
-        });
-        console.log('PointsHistory: Fetched recent logs', { count: allLogs.length });
+    setIsLoading(true);
+    setIsLoadingInitial(true);
+    console.log('PointsHistory: Fetching past events', { address });
+    try {
+      const latestBlock = await publicClient.getBlockNumber();
+      const CHUNK_SIZE = 90000n;
+      const startBlock = latestBlock > CHUNK_SIZE ? latestBlock - CHUNK_SIZE : 0n;
+      setMaxFetchedBlock(latestBlock);
+      setMinFetchedBlock(startBlock);
+      console.log('PointsHistory: Initial fetch from recent blocks', { startBlock, toBlock: latestBlock });
+      const allLogs = await publicClient.getLogs({
+        address: POINTS_CONTRACT_ADDRESS,
+        event: {
+          type: 'event',
+          name: 'PointsAwarded',
+          inputs: [
+            { type: 'address', name: 'user', indexed: true },
+            { type: 'uint256', name: 'points', indexed: false },
+            { type: 'string', name: 'action', indexed: false }
+          ]
+        },
+        args: { user: ((address as `0x${string}`).toLowerCase() as `0x${string}`) },
+        fromBlock: startBlock,
+        toBlock: latestBlock
+      });
+      console.log('PointsHistory: Fetched recent logs', { count: allLogs.length });
 
-        console.log('PointsHistory: Fetched all past events', { totalLogs: allLogs.length });
-
-        // Process past events into transactions with accurate timestamps and unique IDs
-        const pastTxPromises = allLogs.map(async (log) => {
-          const event = log as unknown as {
-            args: { user: `0x${string}`; points: bigint; action: string };
-            transactionHash: `0x${string}`;
-          };
-          console.log('PointsHistory: Raw past event action', event.args.action);
-          const type = event.args.action === "sayArise" ? "say-arise" :
-                      event.args.action === "ethTransfer" ? "send-eth" :
-                      event.args.action === "socialShare" ? "share" :
-                      event.args.action === "burn" ? "burn" :
-                      "say-arise";
-          // Fetch block timestamp for the event
-          let timestamp = new Date();
-          try {
-            const block = await publicClient.getBlock({ blockNumber: (log as any).blockNumber });
-            timestamp = new Date(Number(block.timestamp) * 1000);
-          } catch (blockError) {
-            console.error('PointsHistory: Error fetching block timestamp', blockError);
-          }
-          return {
-            id: `${(log as any).transactionHash}-${(log as any).logIndex}`,
-            type,
-            points: Number(event.args.points),
-            timestamp,
-            transactionHash: (log as any).transactionHash,
-            details: (type === "send-eth" || type === "burn") ?
-              `Transaction: ${(log as any).transactionHash.slice(0, 8)}...${(log as any).transactionHash.slice(-6)}` :
-              undefined
-          } as PointTransaction;
-        });
-        const pastTransactions = (await Promise.all(pastTxPromises))
-          .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-        console.log('PointsHistory: Processed past events with timestamps', { transactionCount: pastTransactions.length });
-        
-        setTransactions(pastTransactions);
-      } catch (error) {
-        console.error('PointsHistory: Error fetching past events', error);
-      } finally {
-        setIsLoading(false);
-        setIsLoadingInitial(false);
-      }
-    };
-
-    fetchPastEvents();
+      // Process past events into transactions with accurate timestamps and unique IDs
+      const pastTxPromises = allLogs.map(async (log) => {
+        const event = log as unknown as { args: { user: string; points: bigint; action: string }; transactionHash: string };
+        const type = event.args.action === 'sayArise' ? 'say-arise' :
+                     event.args.action === 'ethTransfer' ? 'send-eth' :
+                     event.args.action === 'socialShare' ? 'share' :
+                     event.args.action === 'burn' ? 'burn' : 'say-arise';
+        let timestamp = new Date();
+        try {
+          const block = await publicClient.getBlock({ blockNumber: (log as any).blockNumber });
+          timestamp = new Date(Number(block.timestamp) * 1000);
+        } catch {}
+        return {
+          id: `${(log as any).transactionHash}-${(log as any).logIndex}`,
+          type,
+          points: Number(event.args.points),
+          timestamp,
+          transactionHash: (log as any).transactionHash,
+          details: (type === 'send-eth' || type === 'burn')
+            ? `Transaction: ${(log as any).transactionHash.slice(0, 8)}...${(log as any).transactionHash.slice(-6)}`
+            : undefined
+        } as PointTransaction;
+      });
+      const pastTransactions = (await Promise.all(pastTxPromises))
+        .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+      setTransactions(pastTransactions);
+    } catch (error) {
+      console.error('PointsHistory: Error fetching past events', error);
+    } finally {
+      setIsLoading(false);
+      setIsLoadingInitial(false);
+    }
   }, [address, isConnected, publicClient]);
+
+  // Trigger fetch on wallet connect; clear all state on disconnect
+  useEffect(() => {
+    if (isConnected) {
+      fetchPastEvents();
+    } else {
+      setTransactions([]);
+      setCurrentPage(1);
+      setMinFetchedBlock(0n);
+      setMaxFetchedBlock(0n);
+      setIsLoading(false);
+      setIsLoadingInitial(false);
+      setIsLoadingMore(false);
+    }
+  }, [isConnected, fetchPastEvents]);
 
   // Helper to load older pages on pagination
   const loadMore = useCallback(async () => {
@@ -356,6 +359,16 @@ export function PointsHistory({ onHistoryChange }: PointsHistoryProps) {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
   const paginatedTransactions = sortedTransactions.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
+  // Show connect-wallet prompt when disconnected
+  if (!isConnected) {
+    return (
+      <div className="text-sm flex items-center gap-2">
+        <Clock className="w-4 h-4" />
+        Connect your wallet to view points history
+      </div>
+    );
+  }
+
   // Initial skeletal loading indicator before rendering main UI
   if (isLoadingInitial) {
     return (
@@ -365,15 +378,6 @@ export function PointsHistory({ onHistoryChange }: PointsHistoryProps) {
         ))}
       </div>
     );
-  }
-
-  if (!isConnected) {
-    return (
-      <div className="text-sm text-gray-400 flex items-center gap-2">
-        <Clock className="w-4 h-4" />
-        Connect your wallet to view points history
-      </div>
-    )
   }
 
   if (isLoading) {
