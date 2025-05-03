@@ -12,6 +12,13 @@ export function usePoints() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Clear points when wallet disconnects
+  useEffect(() => {
+    if (!isConnected) {
+      setPoints(BigInt(0));
+    }
+  }, [isConnected]);
+
   // Read user's points
   const { data: userPoints, refetch: refetchPoints } = useReadContract({
     address: POINTS_CONTRACT_ADDRESS,

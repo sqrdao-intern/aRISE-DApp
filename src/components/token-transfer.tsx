@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { parseEther } from 'viem';
-import { Loader2, Send } from 'lucide-react';
+import { Loader2, Send, Clock } from 'lucide-react';
 import { customToast } from '@/components/ui/custom-toast';
 import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
 import { cn } from '@/lib/utils';
@@ -25,6 +25,16 @@ export function TokenTransfer({ onTransferComplete }: TokenTransferProps) {
   const [amount, setAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Reset local state when wallet disconnects
+  useEffect(() => {
+    if (!isConnected) {
+      setIsLoading(false);
+      setError(null);
+      setRecipient('');
+      setAmount('');
+    }
+  }, [isConnected]);
 
   const handleTransfer = async () => {
     if (!isConnected || !address || !walletClient) {
@@ -103,10 +113,9 @@ export function TokenTransfer({ onTransferComplete }: TokenTransferProps) {
   if (!isConnected) {
     return (
       <Card className="p-6 bg-white/10 backdrop-blur-lg">
-        <div className="space-y-4">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
+        <div className="text-sm flex items-center gap-2">
+          <Clock className="w-4 h-4" />
+          Connect your wallet to send ETH
         </div>
       </Card>
     );
