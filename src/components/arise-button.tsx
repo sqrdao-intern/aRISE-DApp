@@ -33,6 +33,8 @@ export function AriseButton() {
   const { isOnCooldown, formattedTime, startCooldown } = useCooldown(address);
   
   const { status, error, isLoading: isTransactionLoading } = useTransactionStatus(transactionHash, () => {
+    // Show toast on transaction confirmation
+    customToast.success('Points Updated', `New Balance: +20 Points`);
     // Refresh counts when transaction is confirmed
     setIsUpdating(true);
     setTimeout(() => setIsUpdating(false), 1000); // Animation duration
@@ -109,7 +111,6 @@ export function AriseButton() {
       if (logs.length === 0) return;
       const event = logs[0] as { args: { user: string; points: bigint; action: string } };
       if (event.args.user.toLowerCase() === address?.toLowerCase()) {
-        customToast.success('Points Updated', `New balance: ${event.args.points.toString()}`);
         // Refresh all counts when points are updated
         refetchPoints();
         refetchUserCount();
@@ -135,6 +136,13 @@ export function AriseButton() {
       setTotalAriseCount(totalCount);
     }
   }, [userCount, totalCount]);
+
+  // Reset aRISE counts when wallet disconnects
+  useEffect(() => {
+    if (!isConnected) {
+      setUserAriseCount(BigInt(0));
+    }
+  }, [isConnected]);
 
   const handleSayArise = async () => {
     if (!isConnected) {
