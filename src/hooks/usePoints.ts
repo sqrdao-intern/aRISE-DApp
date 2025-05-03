@@ -16,6 +16,8 @@ export function usePoints() {
   useEffect(() => {
     if (!isConnected) {
       setPoints(BigInt(0));
+      setIsLoading(false);
+      setError(null);
     }
   }, [isConnected]);
 

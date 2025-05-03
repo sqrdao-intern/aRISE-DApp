@@ -121,6 +121,8 @@ export function PointsHistory({ onHistoryChange }: PointsHistoryProps) {
       console.log('PointsHistory: Fetched recent logs', { count: allLogs.length });
 
       // Process past events into transactions with accurate timestamps and unique IDs
+      const blockCache = new Map<bigint, Date>();
+
       const pastTxPromises = allLogs.map(async (log) => {
         const event = log as unknown as { args: { user: string; points: bigint; action: string }; transactionHash: string };
         const type = event.args.action === 'sayArise' ? 'say-arise' :
@@ -129,8 +131,12 @@ export function PointsHistory({ onHistoryChange }: PointsHistoryProps) {
                      event.args.action === 'burn' ? 'burn' : 'say-arise';
         let timestamp = new Date();
         try {
-          const block = await publicClient.getBlock({ blockNumber: (log as any).blockNumber });
-          timestamp = new Date(Number(block.timestamp) * 1000);
+          const bn = (log as any).blockNumber as bigint;
+          if (!blockCache.has(bn)) {
+            const blk = await publicClient.getBlock({ blockNumber: bn });
+            blockCache.set(bn, new Date(Number(blk.timestamp) * 1000));
+          }
+          timestamp = blockCache.get(bn)!;
         } catch {}
         return {
           id: `${(log as any).transactionHash}-${(log as any).logIndex}`,

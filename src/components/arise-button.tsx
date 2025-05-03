@@ -31,25 +31,30 @@ export function AriseButton() {
   const lastEventRef = useRef<string>('');
   
   const { isOnCooldown, formattedTime, startCooldown } = useCooldown(address);
+
+  const timerIds = useRef<number[]>([]);
   
   const { status, error, isLoading: isTransactionLoading } = useTransactionStatus(transactionHash, () => {
     // Show toast on transaction confirmation
     customToast.success('Points Updated', `New Balance: +20 Points`);
     // Refresh counts when transaction is confirmed
     setIsUpdating(true);
-    setTimeout(() => setIsUpdating(false), 1000); // Animation duration
+    timerIds.current.push(window.setTimeout(() => setIsUpdating(false), 1000));
     // Start cooldown when transaction is confirmed
     startCooldown();
     // Mark as new transaction for sharing
     setIsNewTransaction(true);
     // Reset new transaction flag after a delay
-    setTimeout(() => setIsNewTransaction(false), 5000);
+    timerIds.current.push(
+      window.setTimeout(() => setIsNewTransaction(false), 5000)
+    );
     // Refresh points and arise counts after a short delay to ensure blockchain state is updated
-    setTimeout(() => {
-      refetchPoints();
-      refetchUserCount();
-      refetchTotalCount();
-    }, 2000);
+    timerIds.current.push(window.setTimeout(() => {
+        refetchPoints();
+        refetchUserCount();
+        refetchTotalCount();
+      }, 2000)
+    );
   });
 
   const { writeContract } = useWriteContract({
